@@ -16,6 +16,7 @@ import android.os.IBinder
 import android.os.Looper
 import android.service.quicksettings.TileService
 import androidx.core.app.NotificationCompat
+import java.util.Locale
 import kotlin.math.abs
 
 class ChargingService : Service() {
@@ -36,7 +37,7 @@ class ChargingService : Service() {
         isRunning = true
         ChargingSessionManager.init(this)
         createNotificationChannel()
-        startForeground(NOTIF_ID, createNotification("Memulakan bacaan cas..."))
+        startForeground(NOTIF_ID, createNotification("Memulakan bacaan cas jitu..."))
         handler.post(updateRunnable)
     }
 
@@ -76,10 +77,20 @@ class ChargingService : Service() {
         }
 
         val text = if (isCharging) {
-            String.format("⚡ %.2f W | Puncak: %.2f W | Diserap: %.0f mAh", watts, ChargingSessionManager.peakWatt, ChargingSessionManager.totalMah)
+            val etaStr = if (ChargingSessionManager.etaTo80Min > 0) {
+                " • ~${ChargingSessionManager.etaTo80Min}m ke 80%"
+            } else ""
+            String.format(
+                Locale.US,
+                "⚡ %.2f W | Puncak: %.2f W | %.2f Wh%s",
+                watts,
+                ChargingSessionManager.peakWatt,
+                ChargingSessionManager.energyWh,
+                etaStr
+            )
         } else {
             val duration = ChargingSessionManager.formatDuration(System.currentTimeMillis() - ChargingSessionManager.lastUnplugTimestamp)
-            String.format("Kabel dicabut. Tempoh guna: %s", duration)
+            String.format(Locale.getDefault(), "Kabel dicabut. Tempoh guna: %s", duration)
         }
 
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -103,7 +114,7 @@ class ChargingService : Service() {
         )
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("CasWatt Live Monitor")
+            .setContentTitle("CasWatt Pro Live Monitor")
             .setContentText(contentText)
             .setSmallIcon(android.R.drawable.ic_lock_idle_charging)
             .setContentIntent(pendingIntent)

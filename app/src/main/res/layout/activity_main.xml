@@ -19,7 +19,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="⚡ CasWatt Pro v4.1"
+            android:text="⚡ CasWatt Pro v5.0"
             android:textColor="#FFFFFF"
             android:textSize="22sp"
             android:textStyle="bold" />
@@ -28,7 +28,7 @@
             android:id="@+id/tv_header_subtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Pengesan Kuasa • Kesihatan Bateri • Rekod Harian"
+            android:text="Diagnostik Kabel • Smart ETA • Log Sesi • Kos Tenaga"
             android:textColor="#78909C"
             android:textSize="12sp" />
     </LinearLayout>
@@ -98,6 +98,83 @@
                         android:textColor="#ECEFF1"
                         android:textSize="17sp"
                         android:layout_marginTop="3dp" />
+
+                    <!-- Thermal Throttling Badge -->
+                    <TextView
+                        android:id="@+id/tv_thermal_throttle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="⚠️ THERMAL THROTTLE: Kuasa dihadkan cip bagi elak pemanasan lampau!"
+                        android:textColor="#FF1744"
+                        android:background="#2E1014"
+                        android:padding="8dp"
+                        android:gravity="center"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:layout_marginTop="10dp"
+                        android:visibility="gone" />
+
+                    <!-- Trickle Charge Badge -->
+                    <TextView
+                        android:id="@+id/tv_trickle_status"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="🟢 PENEPUMAN BATERI: Cas halus (Trickle Charge) sedang menstabilkan sel."
+                        android:textColor="#00E676"
+                        android:background="#0C2919"
+                        android:padding="8dp"
+                        android:gravity="center"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:layout_marginTop="10dp"
+                        android:visibility="gone" />
+                </LinearLayout>
+
+                <!-- Kad Smart ETA & Kualiti Kabel -->
+                <LinearLayout
+                    android:id="@+id/ll_smart_eta_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/widget_background"
+                    android:padding="16dp"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="14dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="⚡ Diagnostik Kabel &amp; Anggaran Masa (ETA)"
+                        android:textColor="#90A4AE"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_cable_quality"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Kualiti Kabel: Mengukur..."
+                        android:textColor="#00E676"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        android:layout_marginTop="4dp" />
+
+                    <TextView
+                        android:id="@+id/tv_smart_eta_80"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="⏱️ Anggaran ke 80%: Mengira..."
+                        android:textColor="#ECEFF1"
+                        android:textSize="13sp"
+                        android:layout_marginTop="4dp" />
+
+                    <TextView
+                        android:id="@+id/tv_smart_eta_100"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="⏱️ Anggaran ke 100%: Mengira..."
+                        android:textColor="#ECEFF1"
+                        android:textSize="13sp"
+                        android:layout_marginTop="2dp" />
                 </LinearLayout>
 
                 <!-- Tempoh Nyahcas -->
@@ -137,12 +214,12 @@
                         android:layout_marginTop="2dp" />
                 </LinearLayout>
 
-                <!-- 2 Kad Sebelah Menyebelah: Peak Watt & Total Energy -->
+                <!-- Baris 1: Peak Watt & Total Energy mAh -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginBottom="14dp">
+                    android:layout_marginBottom="12dp">
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -191,7 +268,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="🔋 Tenaga Diserap"
+                            android:text="🔋 Arus Masuk"
                             android:textColor="#90A4AE"
                             android:textSize="12sp"
                             android:textStyle="bold" />
@@ -209,7 +286,85 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Kapasiti Masuk Sesi"
+                            android:text="Kapasiti Sesi Semasa"
+                            android:textColor="#546E7A"
+                            android:textSize="10sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Baris 2: Tenaga Sebenar Wh & Kos Elektrik RM -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="14dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/widget_background"
+                        android:padding="14dp"
+                        android:orientation="vertical"
+                        android:layout_marginEnd="6dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="💡 Tenaga Sebenar"
+                            android:textColor="#90A4AE"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_energy_wh"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0.00 Wh"
+                            android:textColor="#FFD54F"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            android:layout_marginTop="4dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Watt-jam Elektrik"
+                            android:textColor="#546E7A"
+                            android:textSize="10sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/widget_background"
+                        android:padding="14dp"
+                        android:orientation="vertical"
+                        android:layout_marginStart="6dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="💵 Kos Elektrik"
+                            android:textColor="#90A4AE"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_cost_myr"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="RM 0.00"
+                            android:textColor="#AB47BC"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            android:layout_marginTop="4dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Tarif Asas SESB Sabah"
                             android:textColor="#546E7A"
                             android:textSize="10sp" />
                     </LinearLayout>
@@ -253,7 +408,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="🔄 Auto-Reset aktif: Watt puncak &amp; mAh akan reset sendiri setiap kali wayar dicucuk semula."
+                        android:text="🔄 Auto-Reset aktif: Watt puncak, mAh, dan Wh akan reset sendiri setiap kali wayar dicucuk semula."
                         android:textColor="#00E676"
                         android:textSize="11sp"
                         android:layout_marginTop="10dp" />
@@ -270,7 +425,7 @@
             </LinearLayout>
         </ScrollView>
 
-        <!-- ================= TAB 2: STATISTIK HARIAN & GRAF ================= -->
+        <!-- ================= TAB 2: STATISTIK & SEJARAH SESI ================= -->
         <ScrollView
             android:id="@+id/view_tab_stats_graph"
             android:layout_width="match_parent"
@@ -328,10 +483,50 @@
                         android:layout_marginTop="4dp" />
                 </LinearLayout>
 
+                <!-- Butang Eksport CSV Lengkap -->
+                <Button
+                    android:id="@+id/btn_export_csv"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:text="📥 Eksport Rekod Lengkap ke CSV (Excel)"
+                    android:backgroundTint="#00E676"
+                    android:textColor="#121318"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="18dp" />
+
+                <!-- Section: Log Terperinci Mengikut Sesi -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="📜 Rekod Kekerapan Cas Harian (Disimpan)"
+                    android:text="🔌 Log Terperinci Mengikut Sesi Cas"
+                    android:textColor="#FFFFFF"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp" />
+
+                <LinearLayout
+                    android:id="@+id/ll_session_history_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/widget_background"
+                    android:padding="16dp"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <TextView
+                        android:id="@+id/tv_empty_session_log"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Belum ada sesi cas direkodkan. Cucuk dan cabut pengecas untuk mula merekod!"
+                        android:textColor="#90A4AE"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <!-- Section: Rekod Ringkasan Harian (10 Tahun) -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="📜 Sejarah Harian Tersimpan (Had 10 Tahun)"
                     android:textColor="#FFFFFF"
                     android:textSize="15sp"
                     android:textStyle="bold"
@@ -350,11 +545,12 @@
                         android:id="@+id/tv_empty_daily_log"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Tiada rekod harian lama lagi. Cucuk pengecas untuk mula merekod!"
+                        android:text="Tiada rekod harian lama lagi."
                         android:textColor="#90A4AE"
                         android:textSize="13sp" />
                 </LinearLayout>
 
+                <!-- Graf Real-Time -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -491,6 +687,7 @@
                         android:layout_marginTop="4dp" />
                 </LinearLayout>
 
+                <!-- Kad Keadaan Fizikal Sel -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -526,6 +723,7 @@
                         android:layout_marginTop="6dp" />
                 </LinearLayout>
 
+                <!-- Kad Penerangan Kejuruteraan Kabel & Haba -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -537,7 +735,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="💡 Petua Memanjangkan Hayat Bateri (Lithium):"
+                        android:text="🔬 Nota Kejuruteraan: Kabel &amp; Haba:"
                         android:textColor="#00E676"
                         android:textStyle="bold"
                         android:textSize="14sp"
@@ -546,11 +744,10 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="1. Hadkan cas sehingga 80% (mengelakkan tekanan voltan tinggi pada anod bateri).
-2. Jangan biar bateri cecah 0% terlalu kerap.
-3. Jangan guna telefon untuk kerja berat semasa cas pantas jika suhu cecah 42°C ke atas."
+                        android:text="• Kualiti Kabel: Kabel yang mempunyai dawai tembaga nipis atau penyambung kotor mempunyai rintangan tinggi (Ω), menyebabkan voltan jatuh dan arus cas tersekat di bawah 1.0A.
+• Thermal Throttling: Jika suhu bateri cecah 40°C ke atas, cip PMIC akan menurunkan arus cas secara drastik demi melindungi lapisan elektrolit sel litium daripada degradasi kekal."
                         android:textColor="#B0BEC5"
-                        android:textSize="13sp"
+                        android:textSize="12sp"
                         android:lineSpacingExtra="4dp" />
                 </LinearLayout>
 
@@ -573,13 +770,13 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="🔔 Tetapan Penggera &amp; Servis"
+                    android:text="🔔 Tetapan Penggera Keselamatan &amp; Kesihatan"
                     android:textColor="#FFFFFF"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:layout_marginBottom="12dp" />
 
-                <!-- Kad Penggera Had Bateri -->
+                <!-- Kad Penggera Had Atas Bateri -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -598,7 +795,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Penggera Had Bateri"
+                            android:text="Penggera Had Atas Pengecasan"
                             android:textColor="#FFFFFF"
                             android:textSize="15sp"
                             android:textStyle="bold" />
@@ -752,6 +949,83 @@
                     </LinearLayout>
                 </LinearLayout>
 
+                <!-- Kad Penggera Bateri Lemah & Bateri Tepu -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/widget_background"
+                    android:padding="16dp"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Penggera Bateri Bawah 20% (Nyahcas)"
+                            android:textColor="#FFFFFF"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <androidx.appcompat.widget.SwitchCompat
+                            android:id="@+id/switch_low_battery_alarm"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checked="true" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Peringatan supaya mencucuk cas sebelum nyahcas lampau berlaku."
+                        android:textColor="#78909C"
+                        android:textSize="12sp"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginBottom="14dp" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#263238"
+                        android:layout_marginBottom="14dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Penggera Bateri Tepu Penuh (Trickle Done)"
+                            android:textColor="#FFFFFF"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <androidx.appcompat.widget.SwitchCompat
+                            android:id="@+id/switch_trickle_alarm"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checked="true" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Berbunyi bila sel bateri benar-benar tepu (arus masuk < 40mA pada 100%)."
+                        android:textColor="#78909C"
+                        android:textSize="12sp"
+                        android:layout_marginTop="2dp" />
+                </LinearLayout>
+
                 <Button
                     android:id="@+id/btn_test_alarm"
                     android:layout_width="match_parent"
@@ -830,7 +1104,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Edisi Khas • Versi 4.1.0"
+                    android:text="Master Edition • Versi 5.0.0"
                     android:textColor="#00E676"
                     android:textSize="13sp"
                     android:textStyle="bold"
@@ -881,7 +1155,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Visi, idea ciri-ciri utama &amp; pengujian praktikal."
+                            android:text="Visi, idea diagnostik kabel, formula kos tenaga &amp; pengujian praktikal."
                             android:textColor="#78909C"
                             android:textSize="12sp"
                             android:layout_marginTop="2dp" />
@@ -920,7 +1194,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Pengaturcaraan native Kotlin, binaan servis masa-nyata &amp; automasi CI/CD."
+                            android:text="Pengaturcaraan native Kotlin, algoritma pintar ETA, kalkulator Wh/kos, dan integrasi CI/CD."
                             android:textColor="#78909C"
                             android:textSize="12sp"
                             android:layout_marginTop="2dp" />

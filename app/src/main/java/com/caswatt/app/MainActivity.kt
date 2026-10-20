@@ -14,11 +14,17 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlin.math.abs
 
 class MainActivity : AppCompatActivity() {
@@ -30,34 +36,49 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tabCredits: ScrollView
     private lateinit var bottomNav: BottomNavigationView
 
+    // Tab 1: Utama
     private lateinit var tvStatus: TextView
     private lateinit var tvWatt: TextView
     private lateinit var tvCurrent: TextView
     private lateinit var tvVoltage: TextView
+    private lateinit var tvThermalThrottle: TextView
+    private lateinit var tvTrickleStatus: TextView
+    private lateinit var tvCableQuality: TextView
+    private lateinit var tvSmartEta80: TextView
+    private lateinit var tvSmartEta100: TextView
+    private lateinit var tvDischargeDuration: TextView
+    private lateinit var tvDischargeSub: TextView
+    private lateinit var tvPeakWatt: TextView
+    private lateinit var tvTotalMah: TextView
+    private lateinit var tvEnergyWh: TextView
+    private lateinit var tvCostMyr: TextView
     private lateinit var tvLevel: TextView
     private lateinit var tvTemp: TextView
     private lateinit var tvPlug: TextView
-    private lateinit var tvPeakWatt: TextView
-    private lateinit var tvTotalMah: TextView
-    private lateinit var tvDischargeDuration: TextView
-    private lateinit var tvDischargeSub: TextView
     private lateinit var btnResetSession: Button
 
+    // Tab 2: Statistik & Sesi
     private lateinit var tvTodayChargeCount: TextView
     private lateinit var tvTodayTotalMah: TextView
     private lateinit var tvTodayPeakWatt: TextView
+    private lateinit var btnExportCsv: Button
+    private lateinit var llSessionHistoryContainer: LinearLayout
     private lateinit var llDailyHistoryContainer: LinearLayout
     private lateinit var chartView: ChargingChartView
     private lateinit var btnClearGraph: Button
 
+    // Tab 3: Kesihatan
     private lateinit var tvHealthCondition: TextView
     private lateinit var tvHealthCycles: TextView
     private lateinit var tvHealthCumulative: TextView
     private lateinit var tvHealthVoltageDetail: TextView
     private lateinit var tvHealthTempDetail: TextView
 
+    // Tab 4: Penggera
     private lateinit var switchBatteryAlarm: SwitchCompat
     private lateinit var switchTempAlarm: SwitchCompat
+    private lateinit var switchLowBatteryAlarm: SwitchCompat
+    private lateinit var switchTrickleAlarm: SwitchCompat
     private lateinit var tvBatteryAlarmLabel: TextView
     private lateinit var tvTempAlarmLabel: TextView
     private lateinit var btnThresh80: Button
@@ -101,18 +122,27 @@ class MainActivity : AppCompatActivity() {
         tvWatt = findViewById(R.id.tv_main_watt)
         tvCurrent = findViewById(R.id.tv_main_current)
         tvVoltage = findViewById(R.id.tv_main_voltage)
+        tvThermalThrottle = findViewById(R.id.tv_thermal_throttle)
+        tvTrickleStatus = findViewById(R.id.tv_trickle_status)
+        tvCableQuality = findViewById(R.id.tv_cable_quality)
+        tvSmartEta80 = findViewById(R.id.tv_smart_eta_80)
+        tvSmartEta100 = findViewById(R.id.tv_smart_eta_100)
+        tvDischargeDuration = findViewById(R.id.tv_discharge_duration)
+        tvDischargeSub = findViewById(R.id.tv_discharge_sub)
+        tvPeakWatt = findViewById(R.id.tv_peak_watt)
+        tvTotalMah = findViewById(R.id.tv_total_mah)
+        tvEnergyWh = findViewById(R.id.tv_energy_wh)
+        tvCostMyr = findViewById(R.id.tv_cost_myr)
         tvLevel = findViewById(R.id.tv_main_level)
         tvTemp = findViewById(R.id.tv_main_temp)
         tvPlug = findViewById(R.id.tv_main_plug)
-        tvPeakWatt = findViewById(R.id.tv_peak_watt)
-        tvTotalMah = findViewById(R.id.tv_total_mah)
-        tvDischargeDuration = findViewById(R.id.tv_discharge_duration)
-        tvDischargeSub = findViewById(R.id.tv_discharge_sub)
         btnResetSession = findViewById(R.id.btn_reset_session)
 
         tvTodayChargeCount = findViewById(R.id.tv_today_charge_count)
         tvTodayTotalMah = findViewById(R.id.tv_today_total_mah)
         tvTodayPeakWatt = findViewById(R.id.tv_today_peak_watt)
+        btnExportCsv = findViewById(R.id.btn_export_csv)
+        llSessionHistoryContainer = findViewById(R.id.ll_session_history_container)
         llDailyHistoryContainer = findViewById(R.id.ll_daily_history_container)
         chartView = findViewById(R.id.charging_chart_view)
         btnClearGraph = findViewById(R.id.btn_clear_graph)
@@ -125,6 +155,8 @@ class MainActivity : AppCompatActivity() {
 
         switchBatteryAlarm = findViewById(R.id.switch_battery_alarm)
         switchTempAlarm = findViewById(R.id.switch_temp_alarm)
+        switchLowBatteryAlarm = findViewById(R.id.switch_low_battery_alarm)
+        switchTrickleAlarm = findViewById(R.id.switch_trickle_alarm)
         tvBatteryAlarmLabel = findViewById(R.id.tv_battery_alarm_label)
         tvTempAlarmLabel = findViewById(R.id.tv_temp_alarm_label)
         btnThresh80 = findViewById(R.id.btn_thresh_80)
@@ -154,6 +186,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_stats_graph -> {
                     tabStatsGraph.visibility = View.VISIBLE
                     chartView.invalidate()
+                    renderSessionHistory()
                     renderDailyHistory()
                     true
                 }
@@ -174,12 +207,85 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun renderSessionHistory() {
+        llSessionHistoryContainer.removeAllViews()
+
+        if (ChargingSessionManager.sessionRecords.isEmpty()) {
+            val tvEmpty = TextView(this).apply {
+                text = "Belum ada rekod sesi cas. Cucuk dan cabut pengecas untuk mula merekod!"
+                setTextColor(Color.parseColor("#90A4AE"))
+                textSize = 13f
+            }
+            llSessionHistoryContainer.addView(tvEmpty)
+            return
+        }
+
+        val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+        val dateFormat = SimpleDateFormat("dd MMM", Locale.getDefault())
+
+        for (session in ChargingSessionManager.sessionRecords.take(30)) {
+            val row = LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                setPadding(0, 10, 0, 10)
+            }
+
+            val startStr = "${dateFormat.format(Date(session.startTime))} ${timeFormat.format(Date(session.startTime))}"
+            val endStr = timeFormat.format(Date(session.endTime))
+            val durStr = ChargingSessionManager.formatDuration(session.endTime - session.startTime)
+
+            val tvTitle = TextView(this).apply {
+                text = "⚡ $startStr - $endStr ($durStr)"
+                setTextColor(Color.parseColor("#00E676"))
+                textSize = 14f
+                setTypeface(null, android.graphics.Typeface.BOLD)
+            }
+
+            val tvLevelInfo = TextView(this).apply {
+                val gained = session.endLevel - session.startLevel
+                val gainStr = if (gained >= 0) "+$gained%" else "$gained%"
+                text = "Paras Bateri: ${session.startLevel}% ➔ ${session.endLevel}% ($gainStr)"
+                setTextColor(Color.parseColor("#ECEFF1"))
+                textSize = 12f
+                setPadding(0, 2, 0, 0)
+            }
+
+            val tvMetrics = TextView(this).apply {
+                text = "Puncak: ${String.format(Locale.US, "%.2f W", session.peakWatt)} • ${String.format(Locale.US, "%.0f mAh", session.totalMah)} • ${String.format(Locale.US, "%.2f Wh", session.energyWh)} • RM ${String.format(Locale.US, "%.4f", session.costMyr)}"
+                setTextColor(Color.parseColor("#B0BEC5"))
+                textSize = 12f
+                setPadding(0, 2, 0, 0)
+            }
+
+            val tvCable = TextView(this).apply {
+                text = "Kabel: ${session.cableQuality}"
+                setTextColor(Color.parseColor("#81C784"))
+                textSize = 11f
+                setPadding(0, 2, 0, 0)
+            }
+
+            row.addView(tvTitle)
+            row.addView(tvLevelInfo)
+            row.addView(tvMetrics)
+            row.addView(tvCable)
+
+            val divider = View(this).apply {
+                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1).apply {
+                    setMargins(0, 10, 0, 10)
+                }
+                setBackgroundColor(Color.parseColor("#263238"))
+            }
+
+            llSessionHistoryContainer.addView(row)
+            llSessionHistoryContainer.addView(divider)
+        }
+    }
+
     private fun renderDailyHistory() {
         llDailyHistoryContainer.removeAllViews()
 
         if (ChargingSessionManager.dailyRecords.isEmpty()) {
             val tvEmpty = TextView(this).apply {
-                text = "Belum ada rekod cas lama. Cucuk pengecas untuk mula merekod!"
+                text = "Belum ada rekod cas harian. Cucuk pengecas untuk mula merekod!"
                 setTextColor(Color.parseColor("#90A4AE"))
                 textSize = 13f
             }
@@ -201,7 +307,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             val tvDetails = TextView(this).apply {
-                text = "• Dicas: ${record.count} kali | Puncak: ${String.format("%.2f W", record.peakWatt)} | Tenaga: ${String.format("%.0f mAh", record.totalMah)}"
+                text = "• Dicas: ${record.count} kali | Puncak: ${String.format(Locale.US, "%.2f W", record.peakWatt)} | Tenaga: ${String.format(Locale.US, "%.0f mAh", record.totalMah)}"
                 setTextColor(Color.parseColor("#CFD8DC"))
                 textSize = 12f
             }
@@ -224,6 +330,8 @@ class MainActivity : AppCompatActivity() {
     private fun setupAlarmControls() {
         switchBatteryAlarm.isChecked = ChargingSessionManager.batteryAlarmEnabled
         switchTempAlarm.isChecked = ChargingSessionManager.tempAlarmEnabled
+        switchLowBatteryAlarm.isChecked = ChargingSessionManager.lowBatteryAlarmEnabled
+        switchTrickleAlarm.isChecked = ChargingSessionManager.trickleAlarmEnabled
 
         updateAlarmUiState()
 
@@ -237,6 +345,16 @@ class MainActivity : AppCompatActivity() {
             ChargingSessionManager.tempAlarmEnabled = isChecked
             ChargingSessionManager.saveSettings(this)
             updateAlarmUiState()
+        }
+
+        switchLowBatteryAlarm.setOnCheckedChangeListener { _, isChecked ->
+            ChargingSessionManager.lowBatteryAlarmEnabled = isChecked
+            ChargingSessionManager.saveSettings(this)
+        }
+
+        switchTrickleAlarm.setOnCheckedChangeListener { _, isChecked ->
+            ChargingSessionManager.trickleAlarmEnabled = isChecked
+            ChargingSessionManager.saveSettings(this)
         }
 
         val threshButtons = listOf(
@@ -314,12 +432,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupSessionControls() {
+        btnExportCsv.setOnClickListener {
+            exportRecordsToCsv()
+        }
+
         btnResetSession.setOnClickListener {
             val intent = registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
             val level = intent?.getIntExtra(BatteryManager.EXTRA_LEVEL, 100) ?: 100
             ChargingSessionManager.onChargingStarted(this, level)
             tvPeakWatt.text = "0.00 W"
             tvTotalMah.text = "0 mAh"
+            tvEnergyWh.text = "0.00 Wh"
+            tvCostMyr.text = "RM 0.00"
             chartView.invalidate()
         }
 
@@ -353,6 +477,7 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         registerReceiver(batteryReceiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
         btnToggleService.text = if (ChargingService.isRunning) "Hentikan Servis Background" else "Jalankan Servis Background"
+        renderSessionHistory()
         renderDailyHistory()
     }
 
@@ -389,6 +514,8 @@ class MainActivity : AppCompatActivity() {
 
         val healthCode = intent.getIntExtra(BatteryManager.EXTRA_HEALTH, BatteryManager.BATTERY_HEALTH_UNKNOWN)
 
+        ChargingSessionManager.checkStateTransition(this, isCharging, pct)
+
         val plugged = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1)
         val plugType = when (plugged) {
             BatteryManager.BATTERY_PLUGGED_AC -> "Pengecas Dinding (AC)"
@@ -399,21 +526,50 @@ class MainActivity : AppCompatActivity() {
 
         tvStatus.text = if (isCharging) "SEDANG DICAS ⚡" else "TIDAK DICAS (NYAHCAS)"
         tvStatus.setTextColor(if (isCharging) 0xFF00E676.toInt() else 0xFFFFAB00.toInt())
-        tvWatt.text = String.format("%.2f W", watts)
+        tvWatt.text = String.format(Locale.US, "%.2f W", watts)
         tvWatt.setTextColor(if (isCharging) 0xFF00E676.toInt() else 0xFFFFFFFF.toInt())
         tvCurrent.text = "Arus: $currentMa mA"
-        tvVoltage.text = String.format("Voltan: %.2f V", voltageV)
+        tvVoltage.text = String.format(Locale.US, "Voltan: %.2f V", voltageV)
         tvLevel.text = "Peratus Bateri: $pct%"
-        tvTemp.text = String.format("Suhu Bateri: %.1f °C", tempC)
+        tvTemp.text = String.format(Locale.US, "Suhu Bateri: %.1f °C", tempC)
         tvPlug.text = "Sumber Cas: $plugType"
 
-        tvPeakWatt.text = String.format("%.2f W", ChargingSessionManager.peakWatt)
-        tvTotalMah.text = String.format("%.0f mAh", ChargingSessionManager.totalMah)
+        // Live Badges
+        tvThermalThrottle.visibility = if (isCharging && ChargingSessionManager.isThermalThrottling) View.VISIBLE else View.GONE
+        tvTrickleStatus.visibility = if (isCharging && ChargingSessionManager.isTrickleCharging) View.VISIBLE else View.GONE
+
+        // Kualiti Kabel & Smart ETA
+        if (isCharging) {
+            tvCableQuality.text = "Kualiti Kabel: ${ChargingSessionManager.cableQuality}"
+            val eta80 = ChargingSessionManager.etaTo80Min
+            tvSmartEta80.text = when {
+                eta80 > 0 -> "⏱️ Anggaran ke 80%: ~$eta80 minit lagi"
+                eta80 == 0 -> "⏱️ Anggaran ke 80%: Tercapai (Zon Selamat)"
+                else -> "⏱️ Anggaran ke 80%: Mengira keluk arus..."
+            }
+
+            val eta100 = ChargingSessionManager.etaTo100Min
+            tvSmartEta100.text = when {
+                eta100 > 0 -> "⏱️ Anggaran ke 100%: ~$eta100 minit lagi"
+                eta100 == 0 -> "⏱️ Anggaran ke 100%: Bateri Tepu 100%"
+                else -> "⏱️ Anggaran ke 100%: Mengira keluk arus..."
+            }
+        } else {
+            tvCableQuality.text = "Kualiti Kabel: Pengecas Tidak Bersambung"
+            tvSmartEta80.text = "⏱️ Anggaran ke 80%: Pengecas tidak dicucuk"
+            tvSmartEta100.text = "⏱️ Anggaran ke 100%: Menggunakan kuasa bateri"
+        }
+
+        // Metrik Kuasa & Tenaga Sesi
+        tvPeakWatt.text = String.format(Locale.US, "%.2f W", ChargingSessionManager.peakWatt)
+        tvTotalMah.text = String.format(Locale.US, "%.0f mAh", ChargingSessionManager.totalMah)
+        tvEnergyWh.text = String.format(Locale.US, "%.2f Wh", ChargingSessionManager.energyWh)
+        tvCostMyr.text = String.format(Locale.US, "RM %.4f", ChargingSessionManager.costMyr)
 
         if (isCharging) {
             tvDischargeDuration.text = "Sedang Dicas ⚡"
             tvDischargeDuration.setTextColor(0xFF00E676.toInt())
-            tvDischargeSub.text = "Auto-reset watt puncak & mAh aktif."
+            tvDischargeSub.text = "Auto-reset watt, mAh & Wh aktif."
         } else {
             val elapsed = System.currentTimeMillis() - ChargingSessionManager.lastUnplugTimestamp
             tvDischargeDuration.text = ChargingSessionManager.formatDuration(elapsed)
@@ -424,18 +580,42 @@ class MainActivity : AppCompatActivity() {
 
         val todayRecord = ChargingSessionManager.dailyRecords.firstOrNull()
         tvTodayChargeCount.text = "Berapa Kali Dicas Hari Ini: ${todayRecord?.count ?: 0} kali"
-        tvTodayTotalMah.text = String.format("Jumlah Tenaga Masuk Hari Ini: %.0f mAh", todayRecord?.totalMah ?: 0.0)
-        tvTodayPeakWatt.text = String.format("Watt Puncak Hari Ini: %.2f W", todayRecord?.peakWatt ?: 0.0)
+        tvTodayTotalMah.text = String.format(Locale.US, "Jumlah Tenaga Masuk Hari Ini: %.0f mAh", todayRecord?.totalMah ?: 0.0)
+        tvTodayPeakWatt.text = String.format(Locale.US, "Watt Puncak Hari Ini: %.2f W", todayRecord?.peakWatt ?: 0.0)
 
         if (tabStatsGraph.visibility == View.VISIBLE) {
             chartView.invalidate()
         }
 
         tvHealthCondition.text = ChargingSessionManager.healthCondition
-        tvHealthCycles.text = String.format("Anggaran Kitaran: %.1f kitaran", ChargingSessionManager.getEstimatedCycles())
-        tvHealthCumulative.text = String.format("Jumlah Kumulatif Cas: %.0f%% cas", ChargingSessionManager.cumulativePctCharged)
-        tvHealthVoltageDetail.text = String.format("Voltan Sel Semasa: %.2f V (Normal: 3.7V - 4.4V)", voltageV)
+        tvHealthCycles.text = String.format(Locale.US, "Anggaran Kitaran: %.1f kitaran", ChargingSessionManager.getEstimatedCycles())
+        tvHealthCumulative.text = String.format(Locale.US, "Jumlah Kumulatif Cas: %.0f%% cas", ChargingSessionManager.cumulativePctCharged)
+        tvHealthVoltageDetail.text = String.format(Locale.US, "Voltan Sel Semasa: %.2f V (Normal: 3.7V - 4.4V)", voltageV)
         val tempStatus = if (tempC < 40.0) "Zon Selamat (Selesa)" else if (tempC < 45.0) "Zon Suam" else "Zon Panas Bahaya!"
-        tvHealthTempDetail.text = String.format("Suhu Sel: %.1f °C (%s)", tempC, tempStatus)
+        tvHealthTempDetail.text = String.format(Locale.US, "Suhu Sel: %.1f °C (%s)", tempC, tempStatus)
+    }
+
+    private fun exportRecordsToCsv() {
+        if (ChargingSessionManager.dailyRecords.isEmpty() && ChargingSessionManager.sessionRecords.isEmpty()) {
+            Toast.makeText(this, "Tiada rekod cas untuk dieksport lagi!", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        try {
+            val csvData = ChargingSessionManager.generateCsvData()
+            val file = File(cacheDir, "CasWatt_Pro_Log_Lengkap.csv")
+            file.writeText(csvData)
+
+            val uri = FileProvider.getUriForFile(this, "${packageName}.provider", file)
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/csv"
+                putExtra(Intent.EXTRA_SUBJECT, "CasWatt Pro v5.0 - Rekod Sejarah Pengecasan Lengkap")
+                putExtra(Intent.EXTRA_STREAM, uri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            startActivity(Intent.createChooser(shareIntent, "Simpan atau Kongsi Rekod CSV:"))
+        } catch (e: Exception) {
+            Toast.makeText(this, "Ralat mengeksport: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
     }
 }

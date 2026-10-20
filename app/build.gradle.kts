@@ -17,9 +17,25 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("release") {
+            val keystoreFile = file("caswatt-key.jks")
+            if (keystoreFile.exists()) {
+                storeFile = keystoreFile
+                storePassword = System.getenv("STORE_PASSWORD") ?: "RahsiaCasWatt123"
+                keyAlias = System.getenv("KEY_ALIAS") ?: "caswatt"
+                keyPassword = System.getenv("KEY_PASSWORD") ?: "RahsiaCasWatt123"
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
+            val keystoreFile = file("caswatt-key.jks")
+            if (keystoreFile.exists()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

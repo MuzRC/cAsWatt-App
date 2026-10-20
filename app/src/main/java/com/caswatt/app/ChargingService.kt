@@ -5,6 +5,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -13,6 +14,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.service.quicksettings.TileService
 import androidx.core.app.NotificationCompat
 import kotlin.math.abs
 
@@ -32,6 +34,7 @@ class ChargingService : Service() {
     override fun onCreate() {
         super.onCreate()
         isRunning = true
+        ChargingSessionManager.init(this)
         createNotificationChannel()
         startForeground(NOTIF_ID, createNotification("Memulakan bacaan cas..."))
         handler.post(updateRunnable)
@@ -46,20 +49,32 @@ class ChargingService : Service() {
         var watts = 0.0
         var currentMa = 0
         var isCharging = false
+        var tempC = 0.0
+        var levelPct = 0
 
         if (batteryStatus != null) {
+            val level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
+            val scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
+            levelPct = if (level >= 0 && scale > 0) (level * 100) / scale else 0
+
             val voltageMv = batteryStatus.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0)
             val status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
             isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
                     status == BatteryManager.BATTERY_STATUS_FULL
 
+            val tempTenths = batteryStatus.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0)
+            tempC = tempTenths / 10.0
+
             val currentNowMicro = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)
             currentMa = if (abs(currentNowMicro) > 10000) abs(currentNowMicro) / 1000 else abs(currentNowMicro)
             watts = (voltageMv.toDouble() * currentMa) / 1000000.0
+
+            // Rekod sesi cas & semak penggera
+            ChargingSessionManager.recordSample(this, watts, currentMa, tempC, levelPct, isCharging)
         }
 
         val text = if (isCharging) {
-            String.format("Kuasa Cas: %.1f W (%d mA)", watts, currentMa)
+            String.format("⚡ %.1f W | Puncak: %.1f W | Diserap: %.0f mAh", watts, ChargingSessionManager.peakWatt, ChargingSessionManager.totalMah)
         } else {
             "Kabel dicabut. Pemantauan santai."
         }
@@ -70,6 +85,13 @@ class ChargingService : Service() {
         // Hantar broadcast untuk refresh widget
         val updateIntent = Intent(ChargingWidget.ACTION_UPDATE_WIDGET)
         sendBroadcast(updateIntent)
+
+        // Minta Quick Settings Tile kemas kini
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            try {
+                TileService.requestListeningState(this, ComponentName(this, CasWattTileService::class.java))
+            } catch (_: Exception) {}
+        }
     }
 
     private fun createNotification(contentText: String): Notification {

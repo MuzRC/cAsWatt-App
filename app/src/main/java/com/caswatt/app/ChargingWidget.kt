@@ -67,7 +67,11 @@ class ChargingWidget : AppWidgetProvider() {
 
             views.setTextViewText(R.id.tv_widget_battery, "$pct%")
             views.setTextViewText(R.id.tv_widget_watt, String.format("%.1f W", watts))
-            views.setTextViewText(R.id.tv_widget_details, String.format("%d mA • %.2f V", currentMa, voltageV))
+            
+            val peakStr = if (ChargingSessionManager.peakWatt > 0.0) {
+                String.format(" • Puncak: %.1fW", ChargingSessionManager.peakWatt)
+            } else ""
+            views.setTextViewText(R.id.tv_widget_details, String.format("%d mA • %.2f V%s", currentMa, voltageV, peakStr))
 
             if (isCharging) {
                 views.setTextViewText(R.id.tv_widget_status, "CHARGING ⚡")

@@ -1,17 +1,12 @@
-# ⚡ CasWatt - Android Charging Monitor & Widget
+# ⚡ CasWatt Pro - Multimeter Cas & Monitor Kesihatan Bateri Android
 
-Aplikasi Android untuk mengesan arus masuk ($mA$), voltan ($V$), dan mengira kuasa cas sebenar ($W$) secara masa-nyata berserta Home Screen Widget.
+Aplikasi pengesan kuasa cas ($W$), arus ($mA$), voltan ($V$), suhu bateri (°C) beserta Home Screen Widget, Quick Settings Tile, Graf Keluk Masa-Nyata, dan Sistem Penggera Pintar.
 
-## ✨ Ciri-Ciri Utama:
-- **Bacaan Kuasa Sebenar (Watt):** Mengira $W = (V 	imes mA) / 1,000,000$ secara langsung dari cip pengurusan bateri Android.
-- **Home Screen Widget:** Paparan Watt, status pengecasan, peratus bateri, dan arus terus di skrin utama telefon.
-- **Auto-Start & Auto-Stop:** Servis pemantauan automatik berjalan bila kabel pengecas dicucuk, dan automatik berhenti bila kabel dicabut untuk menjimatkan bateri.
-- **Ringan & Bebas Iklan:** Tiada kebergantungan luar yang berat.
+## 📱 Susunan Tab Navigasi:
+1. **Utama (Dashboard):** Paparan Watt mega secara langsung, voltan, arus, peratus bateri, pengesan Watt Puncak (*Peak Wattage*), dan pengira tenaga diserap (*Total mAh Ingested*).
+2. **Graf (Keluk Pengecasan):** Graf kanvas masa-nyata memaparkan keluk naik turun Watt cas (hijau) dan suhu bateri (oren) untuk mengesan *thermal throttling*.
+3. **Penggera (Health Alarms):** Amaran berbunyi & bergetar bila bateri cecah 80% (atau 85%/90%/100%) dan bila suhu bateri cecah had panas bahaya (45°C).
+4. **Tetapan (Tiles & Servis):** Suis kawalan servis latar belakang, panduan pasang Quick Settings Tile di status bar, dan panduan Home Screen Widget.
 
-## 🚀 Cara Jana APK Menggunakan GitHub Actions:
-1. Buat satu Repository baru di GitHub (contoh: `CasWatt`).
-2. Muat naik (*push* atau *upload*) semua fail dalam folder ini ke GitHub repository tersebut.
-3. Sebaik sahaja fail ditolak ke branch `main`, GitHub Actions akan automatik mula membina (*compile*) aplikasi.
-4. Pergi ke tab **Actions** di GitHub repo anda.
-5. Tekan pada *Workflow run* terkini, dan di bahagian **Artifacts** di bawah sekali, muat turun fail **`CasWatt-Debug-APK`**.
-6. *Unzip* dan pasang fail `.apk` terus ke telefon Android anda!
+## 🚀 Bina APK dengan GitHub Actions:
+Tolak semua fail ke GitHub repository anda. GitHub Actions akan secara automatik menjalankan kompilasi APK dan menyediakan fail muat turun di tab **Actions -> Artifacts**.

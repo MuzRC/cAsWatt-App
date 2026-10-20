@@ -1,7 +1,7 @@
 <resources>
     <style name="Theme.CasWatt" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="colorPrimary">#2979FF</item>
+        <item name="colorPrimary">#00E676</item>
         <item name="android:statusBarColor">#121318</item>
-        <item name="android:navigationBarColor">#121318</item>
+        <item name="android:navigationBarColor">#161820</item>
     </style>
 </resources>

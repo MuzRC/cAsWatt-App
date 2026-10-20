@@ -5,11 +5,13 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.os.BatteryManager
 import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -23,9 +25,9 @@ class MainActivity : AppCompatActivity() {
 
     // Tab Views
     private lateinit var tabDashboard: ScrollView
-    private lateinit var tabGraph: ScrollView
-    private lateinit var tabAlarm: ScrollView
-    private lateinit var tabSettings: ScrollView
+    private lateinit var tabStatsGraph: ScrollView
+    private lateinit var tabHealth: ScrollView
+    private lateinit var tabSettingsAlarm: ScrollView
     private lateinit var bottomNav: BottomNavigationView
 
     // Tab 1 Elements
@@ -38,15 +40,26 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvPlug: TextView
     private lateinit var tvPeakWatt: TextView
     private lateinit var tvTotalMah: TextView
+    private lateinit var tvDischargeDuration: TextView
+    private lateinit var tvDischargeSub: TextView
     private lateinit var btnResetSession: Button
 
     // Tab 2 Elements
+    private lateinit var tvTodayChargeCount: TextView
+    private lateinit var tvTodayTotalMah: TextView
+    private lateinit var tvTodayPeakWatt: TextView
+    private lateinit var llDailyHistoryContainer: LinearLayout
     private lateinit var chartView: ChargingChartView
-    private lateinit var tvGraphStatPoints: TextView
-    private lateinit var tvGraphStatPeak: TextView
     private lateinit var btnClearGraph: Button
 
     // Tab 3 Elements
+    private lateinit var tvHealthCondition: TextView
+    private lateinit var tvHealthCycles: TextView
+    private lateinit var tvHealthCumulative: TextView
+    private lateinit var tvHealthVoltageDetail: TextView
+    private lateinit var tvHealthTempDetail: TextView
+
+    // Tab 4 Elements
     private lateinit var switchBatteryAlarm: SwitchCompat
     private lateinit var switchTempAlarm: SwitchCompat
     private lateinit var tvBatteryAlarmLabel: TextView
@@ -59,8 +72,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnTemp45: Button
     private lateinit var btnTemp48: Button
     private lateinit var btnTestAlarm: Button
-
-    // Tab 4 Elements
     private lateinit var btnToggleService: Button
 
     private val batteryReceiver = object : BroadcastReceiver() {
@@ -84,11 +95,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun initViews() {
         tabDashboard = findViewById(R.id.view_tab_dashboard)
-        tabGraph = findViewById(R.id.view_tab_graph)
-        tabAlarm = findViewById(R.id.view_tab_alarm)
-        tabSettings = findViewById(R.id.view_tab_settings)
+        tabStatsGraph = findViewById(R.id.view_tab_stats_graph)
+        tabHealth = findViewById(R.id.view_tab_health)
+        tabSettingsAlarm = findViewById(R.id.view_tab_settings_alarm)
         bottomNav = findViewById(R.id.bottom_navigation)
 
+        // Tab 1
         tvStatus = findViewById(R.id.tv_main_status)
         tvWatt = findViewById(R.id.tv_main_watt)
         tvCurrent = findViewById(R.id.tv_main_current)
@@ -98,13 +110,26 @@ class MainActivity : AppCompatActivity() {
         tvPlug = findViewById(R.id.tv_main_plug)
         tvPeakWatt = findViewById(R.id.tv_peak_watt)
         tvTotalMah = findViewById(R.id.tv_total_mah)
+        tvDischargeDuration = findViewById(R.id.tv_discharge_duration)
+        tvDischargeSub = findViewById(R.id.tv_discharge_sub)
         btnResetSession = findViewById(R.id.btn_reset_session)
 
+        // Tab 2
+        tvTodayChargeCount = findViewById(R.id.tv_today_charge_count)
+        tvTodayTotalMah = findViewById(R.id.tv_today_total_mah)
+        tvTodayPeakWatt = findViewById(R.id.tv_today_peak_watt)
+        llDailyHistoryContainer = findViewById(R.id.ll_daily_history_container)
         chartView = findViewById(R.id.charging_chart_view)
-        tvGraphStatPoints = findViewById(R.id.tv_graph_stat_points)
-        tvGraphStatPeak = findViewById(R.id.tv_graph_stat_peak)
         btnClearGraph = findViewById(R.id.btn_clear_graph)
 
+        // Tab 3
+        tvHealthCondition = findViewById(R.id.tv_health_condition)
+        tvHealthCycles = findViewById(R.id.tv_health_cycles)
+        tvHealthCumulative = findViewById(R.id.tv_health_cumulative)
+        tvHealthVoltageDetail = findViewById(R.id.tv_health_voltage_detail)
+        tvHealthTempDetail = findViewById(R.id.tv_health_temp_detail)
+
+        // Tab 4
         switchBatteryAlarm = findViewById(R.id.switch_battery_alarm)
         switchTempAlarm = findViewById(R.id.switch_temp_alarm)
         tvBatteryAlarmLabel = findViewById(R.id.tv_battery_alarm_label)
@@ -117,37 +142,84 @@ class MainActivity : AppCompatActivity() {
         btnTemp45 = findViewById(R.id.btn_temp_45)
         btnTemp48 = findViewById(R.id.btn_temp_48)
         btnTestAlarm = findViewById(R.id.btn_test_alarm)
-
         btnToggleService = findViewById(R.id.btn_toggle_service)
     }
 
     private fun setupBottomNav() {
         bottomNav.setOnItemSelectedListener { item ->
             tabDashboard.visibility = View.GONE
-            tabGraph.visibility = View.GONE
-            tabAlarm.visibility = View.GONE
-            tabSettings.visibility = View.GONE
+            tabStatsGraph.visibility = View.GONE
+            tabHealth.visibility = View.GONE
+            tabSettingsAlarm.visibility = View.GONE
 
             when (item.itemId) {
                 R.id.nav_dashboard -> {
                     tabDashboard.visibility = View.VISIBLE
                     true
                 }
-                R.id.nav_graph -> {
-                    tabGraph.visibility = View.VISIBLE
+                R.id.nav_stats_graph -> {
+                    tabStatsGraph.visibility = View.VISIBLE
                     chartView.invalidate()
+                    renderDailyHistory()
                     true
                 }
-                R.id.nav_alarm -> {
-                    tabAlarm.visibility = View.VISIBLE
+                R.id.nav_health -> {
+                    tabHealth.visibility = View.VISIBLE
                     true
                 }
-                R.id.nav_settings -> {
-                    tabSettings.visibility = View.VISIBLE
+                R.id.nav_settings_alarm -> {
+                    tabSettingsAlarm.visibility = View.VISIBLE
                     true
                 }
                 else -> false
             }
+        }
+    }
+
+    private fun renderDailyHistory() {
+        llDailyHistoryContainer.removeAllViews()
+
+        if (ChargingSessionManager.dailyRecords.isEmpty()) {
+            val tvEmpty = TextView(this).apply {
+                text = "Belum ada rekod cas lama. Cucuk pengecas untuk mula merekod!"
+                setTextColor(Color.parseColor("#90A4AE"))
+                textSize = 13f
+            }
+            llDailyHistoryContainer.addView(tvEmpty)
+            return
+        }
+
+        for (record in ChargingSessionManager.dailyRecords) {
+            val row = LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                setPadding(0, 8, 0, 8)
+            }
+
+            val tvDate = TextView(this).apply {
+                text = "📅 ${record.date}"
+                setTextColor(Color.parseColor("#00E676"))
+                textSize = 14f
+                setTypeface(null, android.graphics.Typeface.BOLD)
+            }
+
+            val tvDetails = TextView(this).apply {
+                text = "• Dicas: ${record.count} kali | Puncak: ${String.format("%.2f W", record.peakWatt)} | Tenaga: ${String.format("%.0f mAh", record.totalMah)}"
+                setTextColor(Color.parseColor("#CFD8DC"))
+                textSize = 12f
+            }
+
+            row.addView(tvDate)
+            row.addView(tvDetails)
+
+            val divider = View(this).apply {
+                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1).apply {
+                    setMargins(0, 8, 0, 8)
+                }
+                setBackgroundColor(Color.parseColor("#263238"))
+            }
+
+            llDailyHistoryContainer.addView(row)
+            llDailyHistoryContainer.addView(divider)
         }
     }
 
@@ -214,7 +286,6 @@ class MainActivity : AppCompatActivity() {
             "Penggera suhu panas dimatikan"
         }
 
-        // Highlight selected threshold button
         val activeBg = 0xFF00E676.toInt()
         val inactiveBg = 0xFF263238.toInt()
         val activeText = 0xFF121318.toInt()
@@ -246,17 +317,17 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupSessionControls() {
         btnResetSession.setOnClickListener {
-            ChargingSessionManager.resetSession()
-            tvPeakWatt.text = "0.0 W"
+            val intent = registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+            val level = intent?.getIntExtra(BatteryManager.EXTRA_LEVEL, 100) ?: 100
+            ChargingSessionManager.onChargingStarted(this, level)
+            tvPeakWatt.text = "0.00 W"
             tvTotalMah.text = "0 mAh"
             chartView.invalidate()
-            updateGraphStats()
         }
 
         btnClearGraph.setOnClickListener {
             ChargingSessionManager.history.clear()
             chartView.invalidate()
-            updateGraphStats()
         }
 
         btnToggleService.setOnClickListener {
@@ -284,7 +355,7 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         registerReceiver(batteryReceiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
         btnToggleService.text = if (ChargingService.isRunning) "Hentikan Servis Background" else "Jalankan Servis Background"
-        updateGraphStats()
+        renderDailyHistory()
     }
 
     override fun onPause() {
@@ -313,10 +384,13 @@ class MainActivity : AppCompatActivity() {
             abs(currentNowMicro)
         }
 
+        // Formula Kuasa Watt = (V * mA) / 1,000,000
         val watts = (voltageMv.toDouble() * currentMa) / 1000000.0
 
         val tempTenths = intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0)
         val tempC = tempTenths / 10.0
+
+        val healthCode = intent.getIntExtra(BatteryManager.EXTRA_HEALTH, BatteryManager.BATTERY_HEALTH_UNKNOWN)
 
         val plugged = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1)
         val plugType = when (plugged) {
@@ -326,10 +400,12 @@ class MainActivity : AppCompatActivity() {
             else -> "Menggunakan Bateri"
         }
 
-        // Tab 1 Updates
-        tvStatus.text = if (isCharging) "SEDANG DICAS ⚡" else "TIDAK DICAS"
+        // ================= TAB 1: DASHBOARD =================
+        tvStatus.text = if (isCharging) "SEDANG DICAS ⚡" else "TIDAK DICAS (NYAHCAS)"
         tvStatus.setTextColor(if (isCharging) 0xFF00E676.toInt() else 0xFFFFAB00.toInt())
-        tvWatt.text = String.format("%.1f W", watts)
+        
+        // 1. TUKAR NILAI WATT KEPADA 2 TEMPAT PERPULUHAN (cth: 18.45 W)
+        tvWatt.text = String.format("%.2f W", watts)
         tvWatt.setTextColor(if (isCharging) 0xFF00E676.toInt() else 0xFFFFFFFF.toInt())
         tvCurrent.text = "Arus: $currentMa mA"
         tvVoltage.text = String.format("Voltan: %.2f V", voltageV)
@@ -337,19 +413,38 @@ class MainActivity : AppCompatActivity() {
         tvTemp.text = String.format("Suhu Bateri: %.1f °C", tempC)
         tvPlug.text = "Sumber Cas: $plugType"
 
-        tvPeakWatt.text = String.format("%.1f W", ChargingSessionManager.peakWatt)
+        tvPeakWatt.text = String.format("%.2f W", ChargingSessionManager.peakWatt)
         tvTotalMah.text = String.format("%.0f mAh", ChargingSessionManager.totalMah)
 
-        // Tab 2 Graph Updates
-        if (tabGraph.visibility == View.VISIBLE) {
-            chartView.invalidate()
-            updateGraphStats()
+        // 4. TEMPOH NYAHCAS (DISCHARGE DURATION)
+        if (isCharging) {
+            tvDischargeDuration.text = "Sedang Dicas ⚡"
+            tvDischargeDuration.setTextColor(0xFF00E676.toInt())
+            tvDischargeSub.text = "Auto-reset watt puncak & mAh aktif."
+        } else {
+            val elapsed = System.currentTimeMillis() - ChargingSessionManager.lastUnplugTimestamp
+            tvDischargeDuration.text = ChargingSessionManager.formatDuration(elapsed)
+            tvDischargeDuration.setTextColor(0xFF29B6F6.toInt())
+            val dropPct = (ChargingSessionManager.lastUnplugLevel - pct).coerceAtLeast(0)
+            tvDischargeSub.text = "Bateri: $pct% (Turun ${dropPct}% dari ${ChargingSessionManager.lastUnplugLevel}%)"
         }
-    }
 
-    private fun updateGraphStats() {
-        val count = ChargingSessionManager.history.size
-        tvGraphStatPoints.text = "Jumlah Titik Data: $count titik"
-        tvGraphStatPeak.text = String.format("Watt Puncak Sesi: %.1f W", ChargingSessionManager.peakWatt)
+        // ================= TAB 2: STATISTIK HARIAN =================
+        val todayRecord = ChargingSessionManager.dailyRecords.firstOrNull()
+        tvTodayChargeCount.text = "Berapa Kali Dicas Hari Ini: ${todayRecord?.count ?: 0} kali"
+        tvTodayTotalMah.text = String.format("Jumlah Tenaga Masuk Hari Ini: %.0f mAh", todayRecord?.totalMah ?: 0.0)
+        tvTodayPeakWatt.text = String.format("Watt Puncak Hari Ini: %.2f W", todayRecord?.peakWatt ?: 0.0)
+
+        if (tabStatsGraph.visibility == View.VISIBLE) {
+            chartView.invalidate()
+        }
+
+        // ================= TAB 3: KESIHATAN BATERI =================
+        tvHealthCondition.text = ChargingSessionManager.healthCondition
+        tvHealthCycles.text = String.format("Anggaran Kitaran: %.1f kitaran", ChargingSessionManager.getEstimatedCycles())
+        tvHealthCumulative.text = String.format("Jumlah Kumulatif Cas: %.0f%% cas", ChargingSessionManager.cumulativePctCharged)
+        tvHealthVoltageDetail.text = String.format("Voltan Sel Semasa: %.2f V (Normal: 3.7V - 4.4V)", voltageV)
+        val tempStatus = if (tempC < 40.0) "Zon Selamat (Selesa)" else if (tempC < 45.0) "Zon Suam" else "Zon Panas Bahaya!"
+        tvHealthTempDetail.text = String.format("Suhu Sel: %.1f °C (%s)", tempC, tempStatus)
     }
 }

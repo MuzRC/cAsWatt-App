@@ -8,7 +8,6 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.util.AttributeSet
 import android.view.View
-import kotlin.math.max
 
 class ChargingChartView @JvmOverloads constructor(
     context: Context,
@@ -63,7 +62,7 @@ class ChargingChartView @JvmOverloads constructor(
 
         if (plotW <= 0 || plotH <= 0) return
 
-        // Lukis garisan grid mendatar (Horizontal Grid)
+        // Grid
         for (i in 0..4) {
             val y = paddingTop + (plotH / 4f) * i
             canvas.drawLine(paddingLeft, y, w - paddingRight, y, gridPaint)
@@ -76,25 +75,22 @@ class ChargingChartView @JvmOverloads constructor(
         if (data.size < 2) {
             val emptyPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                 color = Color.parseColor("#546E7A")
-                textSize = 34f
+                textSize = 32f
                 textAlign = Paint.Align.CENTER
             }
             canvas.drawText("⚡ Sambungkan pengecas untuk merekod keluk...", w / 2f, h / 2f, emptyPaint)
             return
         }
 
-        // Tentukan skala maksimum Watt
         var maxObservedWatt = 15f
         for (p in data) {
             if (p.watt > maxObservedWatt) maxObservedWatt = p.watt
         }
         val maxWattAxis = (kotlin.math.ceil((maxObservedWatt + 5f) / 10f) * 10f).coerceAtLeast(20f)
 
-        // Skala Suhu: 20°C hingga 60°C
         val minTemp = 20f
         val maxTemp = 60f
 
-        // Label Paksi Kiri (Watt - Hijau) & Kanan (Suhu - Oren)
         textPaint.color = Color.parseColor("#00E676")
         textPaint.textAlign = Paint.Align.LEFT
         canvas.drawText(String.format("%.0fW", maxWattAxis), 10f, paddingTop + 20f, textPaint)
@@ -105,7 +101,6 @@ class ChargingChartView @JvmOverloads constructor(
         canvas.drawText("60°C", w - 10f, paddingTop + 20f, textPaint)
         canvas.drawText("20°C", w - 10f, h - paddingBottom, textPaint)
 
-        // Plot graf Watt & Suhu
         wattPath.reset()
         tempPath.reset()
 
@@ -115,11 +110,9 @@ class ChargingChartView @JvmOverloads constructor(
             val p = data[i]
             val x = paddingLeft + i * stepX
 
-            // Watt Y: 0W di bawah, maxWattAxis di atas
             val clampedWatt = p.watt.coerceIn(0f, maxWattAxis)
             val yWatt = (paddingTop + plotH) - (clampedWatt / maxWattAxis) * plotH
 
-            // Temp Y: 20°C di bawah, 60°C di atas
             val clampedTemp = p.temp.coerceIn(minTemp, maxTemp)
             val yTemp = (paddingTop + plotH) - ((clampedTemp - minTemp) / (maxTemp - minTemp)) * plotH
 

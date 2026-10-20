@@ -66,24 +66,31 @@ class ChargingWidget : AppWidgetProvider() {
             }
 
             views.setTextViewText(R.id.tv_widget_battery, "$pct%")
-            views.setTextViewText(R.id.tv_widget_watt, String.format("%.1f W", watts))
-            
-            val peakStr = if (ChargingSessionManager.peakWatt > 0.0) {
-                String.format(" • Puncak: %.1fW", ChargingSessionManager.peakWatt)
-            } else ""
-            views.setTextViewText(R.id.tv_widget_details, String.format("%d mA • %.2f V%s", currentMa, voltageV, peakStr))
 
             if (isCharging) {
                 views.setTextViewText(R.id.tv_widget_status, "CHARGING ⚡")
                 views.setTextColor(R.id.tv_widget_status, 0xFF00E676.toInt())
+                // Paparan 2 tempat perpuluhan untuk Watt
+                views.setTextViewText(R.id.tv_widget_watt, String.format("%.2f W", watts))
                 views.setTextColor(R.id.tv_widget_watt, 0xFF00E676.toInt())
+
+                val peakStr = if (ChargingSessionManager.peakWatt > 0.0) {
+                    String.format(" • Puncak: %.2fW", ChargingSessionManager.peakWatt)
+                } else ""
+                views.setTextViewText(R.id.tv_widget_details, String.format("%d mA • %.2f V%s", currentMa, voltageV, peakStr))
             } else {
-                views.setTextViewText(R.id.tv_widget_status, "DISCHARGING")
-                views.setTextColor(R.id.tv_widget_status, 0xFF9E9E9E.toInt())
+                val elapsed = System.currentTimeMillis() - ChargingSessionManager.lastUnplugTimestamp
+                val durationStr = ChargingSessionManager.formatDuration(elapsed)
+                val dropPct = (ChargingSessionManager.lastUnplugLevel - pct).coerceAtLeast(0)
+
+                views.setTextViewText(R.id.tv_widget_status, "NYAHCAS (-${dropPct}%)")
+                views.setTextColor(R.id.tv_widget_status, 0xFF29B6F6.toInt())
+                // Bila dicabut, tunjuk tempoh discharge
+                views.setTextViewText(R.id.tv_widget_watt, durationStr)
                 views.setTextColor(R.id.tv_widget_watt, 0xFFFFFFFF.toInt())
+                views.setTextViewText(R.id.tv_widget_details, String.format("%.2f V • Sejak cabut pengecas", voltageV))
             }
 
-            // Klik widget untuk buka aplikasi
             val intent = Intent(context, MainActivity::class.java)
             val pendingIntent = PendingIntent.getActivity(
                 context, 0, intent,

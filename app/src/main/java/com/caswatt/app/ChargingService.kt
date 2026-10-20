@@ -51,6 +51,7 @@ class ChargingService : Service() {
         var isCharging = false
         var tempC = 0.0
         var levelPct = 0
+        var healthCode = BatteryManager.BATTERY_HEALTH_UNKNOWN
 
         if (batteryStatus != null) {
             val level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
@@ -65,28 +66,31 @@ class ChargingService : Service() {
             val tempTenths = batteryStatus.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0)
             tempC = tempTenths / 10.0
 
+            healthCode = batteryStatus.getIntExtra(BatteryManager.EXTRA_HEALTH, BatteryManager.BATTERY_HEALTH_UNKNOWN)
+
             val currentNowMicro = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)
             currentMa = if (abs(currentNowMicro) > 10000) abs(currentNowMicro) / 1000 else abs(currentNowMicro)
             watts = (voltageMv.toDouble() * currentMa) / 1000000.0
 
-            // Rekod sesi cas & semak penggera
-            ChargingSessionManager.recordSample(this, watts, currentMa, tempC, levelPct, isCharging)
+            // Rekod metrik, kesihatan bateri & periksa penggera
+            ChargingSessionManager.recordSample(this, watts, currentMa, tempC, levelPct, isCharging, healthCode)
         }
 
         val text = if (isCharging) {
-            String.format("⚡ %.1f W | Puncak: %.1f W | Diserap: %.0f mAh", watts, ChargingSessionManager.peakWatt, ChargingSessionManager.totalMah)
+            String.format("⚡ %.2f W | Puncak: %.2f W | Diserap: %.0f mAh", watts, ChargingSessionManager.peakWatt, ChargingSessionManager.totalMah)
         } else {
-            "Kabel dicabut. Pemantauan santai."
+            val duration = ChargingSessionManager.formatDuration(System.currentTimeMillis() - ChargingSessionManager.lastUnplugTimestamp)
+            String.format("Kabel dicabut. Tempoh guna: %s", duration)
         }
 
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.notify(NOTIF_ID, createNotification(text))
 
-        // Hantar broadcast untuk refresh widget
+        // Refresh Widget
         val updateIntent = Intent(ChargingWidget.ACTION_UPDATE_WIDGET)
         sendBroadcast(updateIntent)
 
-        // Minta Quick Settings Tile kemas kini
+        // Refresh Quick Settings Tile
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             try {
                 TileService.requestListeningState(this, ComponentName(this, CasWattTileService::class.java))

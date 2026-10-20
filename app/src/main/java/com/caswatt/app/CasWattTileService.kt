@@ -47,8 +47,13 @@ class CasWattTileService : TileService() {
         val batteryManager = getSystemService(Context.BATTERY_SERVICE) as BatteryManager
         var watts = 0.0
         var isCharging = false
+        var pct = 0
 
         if (batteryStatus != null) {
+            val level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
+            val scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
+            pct = if (level >= 0 && scale > 0) (level * 100) / scale else 0
+
             val voltageMv = batteryStatus.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0)
             val status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
             isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
@@ -61,15 +66,16 @@ class CasWattTileService : TileService() {
 
         if (isCharging) {
             tile.state = Tile.STATE_ACTIVE
-            tile.label = String.format("%.1fW Cas", watts)
+            tile.label = String.format("%.2fW Cas", watts)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                tile.subtitle = String.format("Puncak: %.1fW", ChargingSessionManager.peakWatt)
+                tile.subtitle = String.format("Puncak: %.2fW", ChargingSessionManager.peakWatt)
             }
         } else {
             tile.state = Tile.STATE_INACTIVE
-            tile.label = "CasWatt"
+            val elapsed = System.currentTimeMillis() - ChargingSessionManager.lastUnplugTimestamp
+            tile.label = "Nyahcas " + ChargingSessionManager.formatDuration(elapsed)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                tile.subtitle = "Tidak Dicas"
+                tile.subtitle = "Bateri $pct%"
             }
         }
 

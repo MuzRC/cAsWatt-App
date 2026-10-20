@@ -19,7 +19,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="⚡ CasWatt Pro"
+            android:text="⚡ CasWatt Pro v4.0"
             android:textColor="#FFFFFF"
             android:textSize="22sp"
             android:textStyle="bold" />
@@ -28,7 +28,7 @@
             android:id="@+id/tv_header_subtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Pengesan Kuasa &amp; Multimeter Digital"
+            android:text="Pengesan Kuasa • Kesihatan Bateri • Rekod Harian"
             android:textColor="#78909C"
             android:textSize="12sp" />
     </LinearLayout>
@@ -53,7 +53,7 @@
                 android:orientation="vertical"
                 android:gravity="center_horizontal">
 
-                <!-- Kad Kuasa Utama -->
+                <!-- Kad Kuasa Utama (2 Decimals Watt) -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -61,7 +61,7 @@
                     android:padding="20dp"
                     android:orientation="vertical"
                     android:gravity="center"
-                    android:layout_marginBottom="16dp">
+                    android:layout_marginBottom="14dp">
 
                     <TextView
                         android:id="@+id/tv_main_status"
@@ -72,13 +72,14 @@
                         android:textSize="14sp"
                         android:textStyle="bold" />
 
+                    <!-- Paparan Watt 2 Tempat Perpuluhan -->
                     <TextView
                         android:id="@+id/tv_main_watt"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="0.0 W"
+                        android:text="0.00 W"
                         android:textColor="#00E676"
-                        android:textSize="52sp"
+                        android:textSize="50sp"
                         android:textStyle="bold"
                         android:layout_marginVertical="6dp" />
 
@@ -100,12 +101,49 @@
                         android:layout_marginTop="3dp" />
                 </LinearLayout>
 
+                <!-- KAD 4: MASA NYAHCAS (DISCHARGE DURATION TRACKER) -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/widget_background"
+                    android:padding="16dp"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="14dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="⏱️ Tempoh Nyahcas (Sejak Cabut Pengecas)"
+                        android:textColor="#90A4AE"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_discharge_duration"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0j 0m 0s"
+                        android:textColor="#29B6F6"
+                        android:textSize="24sp"
+                        android:textStyle="bold"
+                        android:layout_marginTop="4dp" />
+
+                    <TextView
+                        android:id="@+id/tv_discharge_sub"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Bateri semasa: 100% (Turun 0%)"
+                        android:textColor="#78909C"
+                        android:textSize="13sp"
+                        android:layout_marginTop="2dp" />
+                </LinearLayout>
+
                 <!-- 2 Kad Sebelah Menyebelah: Peak Watt & Total Energy -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginBottom="16dp">
+                    android:layout_marginBottom="14dp">
 
                     <!-- Kad Peak Watt -->
                     <LinearLayout
@@ -115,7 +153,7 @@
                         android:background="@drawable/widget_background"
                         android:padding="14dp"
                         android:orientation="vertical"
-                        android:layout_marginEnd="8dp">
+                        android:layout_marginEnd="6dp">
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -129,16 +167,16 @@
                             android:id="@+id/tv_peak_watt"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="0.0 W"
+                            android:text="0.00 W"
                             android:textColor="#00E676"
-                            android:textSize="22sp"
+                            android:textSize="20sp"
                             android:textStyle="bold"
                             android:layout_marginTop="4dp" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Maksimum Sesi Ini"
+                            android:text="Auto Reset Sesi"
                             android:textColor="#546E7A"
                             android:textSize="10sp" />
                     </LinearLayout>
@@ -151,7 +189,7 @@
                         android:background="@drawable/widget_background"
                         android:padding="14dp"
                         android:orientation="vertical"
-                        android:layout_marginStart="8dp">
+                        android:layout_marginStart="6dp">
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -167,7 +205,7 @@
                             android:layout_height="wrap_content"
                             android:text="0 mAh"
                             android:textColor="#29B6F6"
-                            android:textSize="22sp"
+                            android:textSize="20sp"
                             android:textStyle="bold"
                             android:layout_marginTop="4dp" />
 
@@ -180,7 +218,7 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <!-- Kad Maklumat Peranti -->
+                <!-- Kad Maklumat Bateri & Auto Reset Badge -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -214,22 +252,30 @@
                         android:textColor="#CFD8DC"
                         android:textSize="14sp"
                         android:layout_marginTop="6dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🔄 Auto-Reset aktif: Watt puncak &amp; mAh akan reset sendiri setiap kali wayar dicucuk semula."
+                        android:textColor="#00E676"
+                        android:textSize="11sp"
+                        android:layout_marginTop="10dp" />
                 </LinearLayout>
 
                 <Button
                     android:id="@+id/btn_reset_session"
                     android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:text="Set Semula Sesi Cas (Reset)"
+                    android:layout_height="48dp"
+                    android:text="Reset Manual Sesi Cas"
                     android:backgroundTint="#37474F"
                     android:textColor="#FFFFFF" />
 
             </LinearLayout>
         </ScrollView>
 
-        <!-- ================= TAB 2: GRAF KELUK ================= -->
+        <!-- ================= TAB 2: STATISTIK HARIAN & GRAF ================= -->
         <ScrollView
-            android:id="@+id/view_tab_graph"
+            android:id="@+id/view_tab_stats_graph"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:padding="16dp"
@@ -243,22 +289,96 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="📈 Keluk Kuasa &amp; Suhu Semasa Mengecas"
+                    android:text="📅 Statistik Pengecasan Hari Ini"
                     android:textColor="#FFFFFF"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:layout_marginBottom="8dp" />
 
-                <!-- Petunjuk Graf (Legend) -->
+                <!-- Kad Statistik Cas Harian -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/widget_background"
+                    android:padding="16dp"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <TextView
+                        android:id="@+id/tv_today_charge_count"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Berapa Kali Dicas Hari Ini: 0 kali"
+                        android:textColor="#00E676"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_today_total_mah"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Jumlah Tenaga Masuk Hari Ini: 0 mAh"
+                        android:textColor="#ECEFF1"
+                        android:textSize="14sp"
+                        android:layout_marginTop="6dp" />
+
+                    <TextView
+                        android:id="@+id/tv_today_peak_watt"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Watt Puncak Hari Ini: 0.00 W"
+                        android:textColor="#ECEFF1"
+                        android:textSize="14sp"
+                        android:layout_marginTop="4dp" />
+                </LinearLayout>
+
+                <!-- Kad Log Rekod Harian (Sejarah disimpan) -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="📜 Rekod Kekerapan Cas Harian (Disimpan)"
+                    android:textColor="#FFFFFF"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp" />
+
+                <LinearLayout
+                    android:id="@+id/ll_daily_history_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/widget_background"
+                    android:padding="16dp"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <TextView
+                        android:id="@+id/tv_empty_daily_log"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Tiada rekod harian lama lagi. Cucuk pengecas untuk mula merekod!"
+                        android:textColor="#90A4AE"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <!-- Graf Keluk Kuasa -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="📈 Keluk Pengecasan Masa-Nyata (Watt &amp; Suhu)"
+                    android:textColor="#FFFFFF"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp" />
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginBottom="12dp">
+                    android:layout_marginBottom="8dp">
 
                     <View
-                        android:layout_width="14dp"
-                        android:layout_height="14dp"
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
                         android:background="#00E676"
                         android:layout_gravity="center_vertical" />
 
@@ -272,8 +392,8 @@
                         android:layout_marginEnd="16dp" />
 
                     <View
-                        android:layout_width="14dp"
-                        android:layout_height="14dp"
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
                         android:background="#FF9100"
                         android:layout_gravity="center_vertical" />
 
@@ -286,64 +406,27 @@
                         android:textStyle="bold" />
                 </LinearLayout>
 
-                <!-- Chart View Custom Canvas -->
                 <com.caswatt.app.ChargingChartView
                     android:id="@+id/charging_chart_view"
                     android:layout_width="match_parent"
-                    android:layout_height="260dp"
+                    android:layout_height="240dp"
                     android:background="@drawable/widget_background"
                     android:layout_marginBottom="16dp" />
-
-                <!-- Kad Statistik Graf -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/widget_background"
-                    android:padding="16dp"
-                    android:orientation="vertical"
-                    android:layout_marginBottom="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Statistik Pengecasan:"
-                        android:textColor="#ECEFF1"
-                        android:textStyle="bold"
-                        android:textSize="14sp"
-                        android:layout_marginBottom="6dp" />
-
-                    <TextView
-                        android:id="@+id/tv_graph_stat_points"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Jumlah Titik Data: 0 titik"
-                        android:textColor="#90A4AE"
-                        android:textSize="13sp" />
-
-                    <TextView
-                        android:id="@+id/tv_graph_stat_peak"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Watt Puncak: 0.0 W"
-                        android:textColor="#90A4AE"
-                        android:textSize="13sp"
-                        android:layout_marginTop="4dp" />
-                </LinearLayout>
 
                 <Button
                     android:id="@+id/btn_clear_graph"
                     android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:text="Kosongkan Data Graf"
+                    android:layout_height="48dp"
+                    android:text="Padam Keluk Graf"
                     android:backgroundTint="#37474F"
                     android:textColor="#FFFFFF" />
 
             </LinearLayout>
         </ScrollView>
 
-        <!-- ================= TAB 3: PENGGERA (HEALTH ALARMS) ================= -->
+        <!-- ================= TAB 3: REKOD KESIHATAN BATERI ================= -->
         <ScrollView
-            android:id="@+id/view_tab_alarm"
+            android:id="@+id/view_tab_health"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:padding="16dp"
@@ -357,19 +440,153 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="🛡️ Penggera Kesihatan Bateri"
+                    android:text="🩺 Rekod &amp; Kesihatan Bateri"
                     android:textColor="#FFFFFF"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:layout_marginBottom="6dp" />
+                    android:layout_marginBottom="4dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Lindungi bateri litium daripada terlampau panas dan kitaran cas 100% berlebihan."
+                    android:text="Pantau keadaan sel kimia, kitaran cas, dan kesihatan perkakasan telefon."
                     android:textColor="#78909C"
                     android:textSize="12sp"
                     android:layout_marginBottom="16dp" />
+
+                <!-- Kad Status Kesihatan Utama -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/widget_background"
+                    android:padding="18dp"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Status Kesihatan Perkakasan OS:"
+                        android:textColor="#90A4AE"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tv_health_condition"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Sihat &amp; Baik (Good)"
+                        android:textColor="#00E676"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:layout_marginVertical="6dp" />
+
+                    <TextView
+                        android:id="@+id/tv_health_cycles"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Anggaran Kitaran Pengecasan: 0.0 kitaran"
+                        android:textColor="#ECEFF1"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/tv_health_cumulative"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Jumlah Kumulatif Cas: 0% cas"
+                        android:textColor="#90A4AE"
+                        android:textSize="12sp"
+                        android:layout_marginTop="4dp" />
+                </LinearLayout>
+
+                <!-- Kad Metrik Sel Semasa -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/widget_background"
+                    android:padding="16dp"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="⚡ Keadaan Fizikal Sel Bateri Semasa:"
+                        android:textColor="#ECEFF1"
+                        android:textStyle="bold"
+                        android:textSize="14sp"
+                        android:layout_marginBottom="8dp" />
+
+                    <TextView
+                        android:id="@+id/tv_health_voltage_detail"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Voltan Sel: 0.00 V (Voltan sihat lithium ~3.7V - 4.4V)"
+                        android:textColor="#CFD8DC"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tv_health_temp_detail"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Suhu Sel: 0.0 °C (Zon Selamat &lt; 40°C)"
+                        android:textColor="#CFD8DC"
+                        android:textSize="13sp"
+                        android:layout_marginTop="6dp" />
+                </LinearLayout>
+
+                <!-- Kad Panduan Jaga Bateri -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/widget_background"
+                    android:padding="16dp"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="💡 Petua Memanjangkan Hayat Bateri (Lithium):"
+                        android:textColor="#00E676"
+                        android:textStyle="bold"
+                        android:textSize="14sp"
+                        android:layout_marginBottom="6dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="1. Hadkan cas sehingga 80% (mengelakkan tekanan voltan tinggi pada anod bateri).
+2. Jangan biar bateri cecah 0% terlalu kerap.
+3. Jangan guna telefon untuk kerja berat semasa cas pantas jika suhu cecah 42°C ke atas."
+                        android:textColor="#B0BEC5"
+                        android:textSize="13sp"
+                        android:lineSpacingExtra="4dp" />
+                </LinearLayout>
+
+            </LinearLayout>
+        </ScrollView>
+
+        <!-- ================= TAB 4: PENGGERA & TETAPAN ================= -->
+        <ScrollView
+            android:id="@+id/view_tab_settings_alarm"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="16dp"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🔔 Tetapan Penggera &amp; Servis"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="12dp" />
 
                 <!-- Kad Penggera Had Bateri -->
                 <LinearLayout
@@ -411,19 +628,11 @@
                         android:textSize="13sp"
                         android:layout_marginTop="4dp" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Pilihan Had Peratus:"
-                        android:textColor="#78909C"
-                        android:textSize="12sp"
-                        android:layout_marginTop="10dp" />
-
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:layout_marginTop="6dp">
+                        android:layout_marginTop="8dp">
 
                         <Button
                             android:id="@+id/btn_thresh_80"
@@ -478,7 +687,7 @@
                     android:background="@drawable/widget_background"
                     android:padding="16dp"
                     android:orientation="vertical"
-                    android:layout_marginBottom="20dp">
+                    android:layout_marginBottom="16dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -515,7 +724,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:layout_marginTop="10dp">
+                        android:layout_marginTop="8dp">
 
                         <Button
                             android:id="@+id/btn_temp_42"
@@ -555,119 +764,13 @@
                 <Button
                     android:id="@+id/btn_test_alarm"
                     android:layout_width="match_parent"
-                    android:layout_height="50dp"
+                    android:layout_height="48dp"
                     android:text="🔔 Uji Bunyi &amp; Getaran Penggera"
                     android:backgroundTint="#2979FF"
-                    android:textColor="#FFFFFF" />
+                    android:textColor="#FFFFFF"
+                    android:layout_marginBottom="16dp" />
 
-            </LinearLayout>
-        </ScrollView>
-
-        <!-- ================= TAB 4: TETAPAN & TILE ================= -->
-        <ScrollView
-            android:id="@+id/view_tab_settings"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="16dp"
-            android:visibility="gone">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <!-- Kad Servis Background -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/widget_background"
-                    android:padding="16dp"
-                    android:orientation="vertical"
-                    android:layout_marginBottom="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="⚙️ Servis Pemantauan Latar Belakang"
-                        android:textColor="#FFFFFF"
-                        android:textSize="15sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Servis ini diperlukan untuk kemas kini Widget secara live dan menjalankan penggera."
-                        android:textColor="#78909C"
-                        android:textSize="12sp"
-                        android:layout_marginVertical="6dp" />
-
-                    <Button
-                        android:id="@+id/btn_toggle_service"
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:text="Jalankan Servis Background"
-                        android:backgroundTint="#2979FF"
-                        android:textColor="#FFFFFF" />
-                </LinearLayout>
-
-                <!-- Kad Panduan Quick Settings Tile -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/widget_background"
-                    android:padding="16dp"
-                    android:orientation="vertical"
-                    android:layout_marginBottom="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="📲 Quick Settings Tile (Tarik Skrin Dari Atas)"
-                        android:textColor="#FFFFFF"
-                        android:textSize="15sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="1. Tarik panel notifikasi telefon anda ke bawah dua kali.
-2. Tekan ikon Pensil (Edit Tiles).
-3. Cari jubin bertajuk 'CasWatt' di bahagian bawah.
-4. Seret jubin tersebut ke senarai aktif di atas.
-5. Kini anda boleh semak Watt cas bila-bila masa tanpa buka app!"
-                        android:textColor="#B0BEC5"
-                        android:textSize="13sp"
-                        android:lineSpacingExtra="4dp"
-                        android:layout_marginTop="8dp" />
-                </LinearLayout>
-
-                <!-- Kad Panduan Widget -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/widget_background"
-                    android:padding="16dp"
-                    android:orientation="vertical"
-                    android:layout_marginBottom="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="🖥️ Home Screen Widget"
-                        android:textColor="#FFFFFF"
-                        android:textSize="15sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Tekan lama di skrin utama (Home Screen) telefon anda, pilih menu 'Widgets', cari 'CasWatt' dan seret ke skrin."
-                        android:textColor="#B0BEC5"
-                        android:textSize="13sp"
-                        android:layout_marginTop="8dp" />
-                </LinearLayout>
-
-                <!-- Kad Info App -->
+                <!-- Kad Servis & Tile -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -679,18 +782,26 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="CasWatt v2.0.0 Pro"
-                        android:textColor="#00E676"
-                        android:textSize="14sp"
+                        android:text="⚙️ Servis Latar Belakang &amp; Quick Tile"
+                        android:textColor="#FFFFFF"
+                        android:textSize="15sp"
                         android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Dicipta khas untuk memantau prestasi kabel cas, adapter PD/GaN, dan menjaga kesihatan bateri telefon."
+                        android:text="Diperlukan untuk kemas kini widget dan penggera tepat pada masanya."
                         android:textColor="#78909C"
                         android:textSize="12sp"
-                        android:layout_marginTop="4dp" />
+                        android:layout_marginVertical="6dp" />
+
+                    <Button
+                        android:id="@+id/btn_toggle_service"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:text="Jalankan Servis Background"
+                        android:backgroundTint="#2979FF"
+                        android:textColor="#FFFFFF" />
                 </LinearLayout>
 
             </LinearLayout>

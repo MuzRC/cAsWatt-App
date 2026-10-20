@@ -37,9 +37,9 @@
         android:id="@+id/tv_widget_watt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="0.0 W"
+        android:text="0.00 W"
         android:textColor="#00E676"
-        android:textSize="32sp"
+        android:textSize="30sp"
         android:textStyle="bold"
         android:layout_marginVertical="2dp" />
 

@@ -1,12 +1,18 @@
-# ⚡ CasWatt Pro - Multimeter Cas & Monitor Kesihatan Bateri Android
+# ⚡ CasWatt Pro v4.0 - Multimeter & Diagnostik Bateri Pintar
 
-Aplikasi pengesan kuasa cas ($W$), arus ($mA$), voltan ($V$), suhu bateri (°C) beserta Home Screen Widget, Quick Settings Tile, Graf Keluk Masa-Nyata, dan Sistem Penggera Pintar.
+Aplikasi pemantauan cas Android generasi baharu dengan ketepatan tinggi, rekod statistik harian automatik, pengira masa nyahcas (*discharge*), dan pemantau kesihatan bateri.
 
-## 📱 Susunan Tab Navigasi:
-1. **Utama (Dashboard):** Paparan Watt mega secara langsung, voltan, arus, peratus bateri, pengesan Watt Puncak (*Peak Wattage*), dan pengira tenaga diserap (*Total mAh Ingested*).
-2. **Graf (Keluk Pengecasan):** Graf kanvas masa-nyata memaparkan keluk naik turun Watt cas (hijau) dan suhu bateri (oren) untuk mengesan *thermal throttling*.
-3. **Penggera (Health Alarms):** Amaran berbunyi & bergetar bila bateri cecah 80% (atau 85%/90%/100%) dan bila suhu bateri cecah had panas bahaya (45°C).
-4. **Tetapan (Tiles & Servis):** Suis kawalan servis latar belakang, panduan pasang Quick Settings Tile di status bar, dan panduan Home Screen Widget.
-
-## 🚀 Bina APK dengan GitHub Actions:
-Tolak semua fail ke GitHub repository anda. GitHub Actions akan secara automatik menjalankan kompilasi APK dan menyediakan fail muat turun di tab **Actions -> Artifacts**.
+## 🌟 4 Fungsi Baharu dalam Versi 4.0:
+1. **Auto Reset & Paparan Watt Lebih Terperinci (2 Tempat Perpuluhan):**
+   - Watt kini dipaparkan dalam 2 tempat perpuluhan yang jitu (`0.00 W`, contoh: `18.45 W`, `33.20 W`) berbanding format 1 angka sebelum ini.
+   - Sesi cas (Watt puncak & mAh diserap) akan di-reset sendiri secara automatik setiap kali kabel pengecas dicucuk semula.
+2. **Kekerapan Cas & Sejarah Harian Tersimpan:**
+   - Mengesan berapa kali bateri telefon dicucuk dan dicas sepanjang hari.
+   - Menyimpan rekod harian secara automatik dalam simpanan peranti (Tarikh, Kekerapan Cas, Watt Puncak Harian, dan Jumlah mAh Diserap).
+3. **Rekod & Kesihatan Bateri (*Battery Health & Cycles*):**
+   - Mengesan status kesihatan kimia bateri daripada sistem operasi (`Sihat & Baik (Good)`, Suhu, Voltan Sel).
+   - Menganggar jumlah kitaran penuh bateri (*Estimated Charge Cycles*) berasaskan akumulasi peratus pengecasan.
+4. **Penjejak Tempoh Nyahcas (*Discharge Duration Tracker*):**
+   - Mengira secara langsung berapa jam dan minit telefon telah digunakan sejak kabel pengecas dicabut kali terakhir.
+   - Menunjukkan penurunan peratus bateri (contoh: *Turun 15% dalam masa 3j 25m*).
+   - Widget di skrin utama turut memaparkan tempoh masa ini apabila telefon tidak dicas!

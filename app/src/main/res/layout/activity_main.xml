@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#121318"
+    android:padding="20dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="⚡ CasWatt Monitor"
+            android:textColor="#FFFFFF"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            android:layout_marginTop="20dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pengesan Kuasa Cas Masuk Masa-Nyata"
+            android:textColor="#78909C"
+            android:textSize="14sp"
+            android:layout_marginBottom="24dp" />
+
+        <!-- Card Kuasa Utama -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/widget_background"
+            android:padding="24dp"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_marginBottom="20dp">
+
+            <TextView
+                android:id="@+id/tv_main_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="MEMERIKSA..."
+                android:textColor="#FFAB00"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_main_watt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0.0 W"
+                android:textColor="#00E676"
+                android:textSize="54sp"
+                android:textStyle="bold"
+                android:layout_marginVertical="8dp" />
+
+            <TextView
+                android:id="@+id/tv_main_current"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Arus: 0 mA"
+                android:textColor="#ECEFF1"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/tv_main_voltage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Voltan: 0.00 V"
+                android:textColor="#ECEFF1"
+                android:textSize="18sp"
+                android:layout_marginTop="4dp" />
+        </LinearLayout>
+
+        <!-- Info Tambahan -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/widget_background"
+            android:padding="16dp"
+            android:orientation="vertical"
+            android:layout_marginBottom="20dp">
+
+            <TextView
+                android:id="@+id/tv_main_level"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Peratus Bateri: --%"
+                android:textColor="#CFD8DC"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/tv_main_temp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Suhu Bateri: -- °C"
+                android:textColor="#CFD8DC"
+                android:textSize="15sp"
+                android:layout_marginTop="8dp" />
+
+            <TextView
+                android:id="@+id/tv_main_plug"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sumber Cas: Tiada"
+                android:textColor="#CFD8DC"
+                android:textSize="15sp"
+                android:layout_marginTop="8dp" />
+        </LinearLayout>
+
+        <!-- Butang Kawalan Servis -->
+        <Button
+            android:id="@+id/btn_toggle_service"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="Jalankan Servis Pantauan Background"
+            android:backgroundTint="#2979FF"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="💡 Petua: Tekan lama di skrin utama (Home Screen) telefon anda, pilih 'Widgets', cari 'CasWatt' dan seret ke skrin untuk pantau Watt secara langsung!"
+            android:textColor="#78909C"
+            android:textSize="13sp"
+            android:gravity="center" />
+
+    </LinearLayout>
+</ScrollView>

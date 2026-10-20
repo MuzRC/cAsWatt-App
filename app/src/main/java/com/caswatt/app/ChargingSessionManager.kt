@@ -38,20 +38,16 @@ object ChargingSessionManager {
     private const val KEY_CUMULATIVE_PCT = "cumulative_pct_charged"
     private const val KEY_HEALTH_STATUS = "last_health_status"
 
-    // Sesi Semasa
     var peakWatt: Double = 0.0
     var totalMah: Double = 0.0
     private var lastTimestamp: Long = 0L
 
-    // Nyahcas (Discharge) Tracker
     var lastUnplugTimestamp: Long = 0L
     var lastUnplugLevel: Int = 100
 
-    // Kitaran & Kesihatan
     var cumulativePctCharged: Double = 0.0
     var healthCondition: String = "Baik (Good)"
 
-    // Alarms
     var batteryAlarmEnabled: Boolean = true
     var batteryThreshold: Int = 80
     var tempAlarmEnabled: Boolean = true
@@ -59,11 +55,9 @@ object ChargingSessionManager {
     private var batteryAlarmFired: Boolean = false
     private var tempAlarmFired: Boolean = false
 
-    // Graf & History
     val history = mutableListOf<ChartPoint>()
     private const val MAX_HISTORY_POINTS = 300
 
-    // Rekod Harian
     val dailyRecords = mutableListOf<DailyRecord>()
 
     private var previousChargeLevel: Int = -1
@@ -122,7 +116,6 @@ object ChargingSessionManager {
         prefs.edit().putString(KEY_DAILY_LOGS, array.toString()).apply()
     }
 
-    // 1. Auto-reset dipanggil bila kabel mula dicucuk
     @Synchronized
     fun onChargingStarted(context: Context, currentLevel: Int) {
         peakWatt = 0.0
@@ -133,13 +126,11 @@ object ChargingSessionManager {
         lastTimestamp = System.currentTimeMillis()
         previousChargeLevel = currentLevel
 
-        // Rekod bilangan cas hari ini
         val today = getTodayDateString()
         var todayRecord = dailyRecords.find { it.date == today }
         if (todayRecord == null) {
             todayRecord = DailyRecord(date = today, count = 1, totalMah = 0.0, peakWatt = 0.0)
             dailyRecords.add(0, todayRecord)
-            // Simpan maksimum 14 hari rekod
             if (dailyRecords.size > 14) {
                 dailyRecords.removeAt(dailyRecords.size - 1)
             }
@@ -149,7 +140,6 @@ object ChargingSessionManager {
         saveDailyRecords(context)
     }
 
-    // 4. Dipanggil bila kabel dicabut (mula discharge)
     @Synchronized
     fun onChargingStopped(context: Context, currentLevel: Int) {
         lastUnplugTimestamp = System.currentTimeMillis()
@@ -164,7 +154,6 @@ object ChargingSessionManager {
             .putFloat(KEY_CUMULATIVE_PCT, cumulativePctCharged.toFloat())
             .apply()
 
-        // Kemas kini rekod harian dengan jumlah mAh dan peak watt
         val today = getTodayDateString()
         val todayRecord = dailyRecords.find { it.date == today }
         if (todayRecord != null) {
@@ -188,7 +177,6 @@ object ChargingSessionManager {
     ) {
         val now = System.currentTimeMillis()
 
-        // 3. Update Status Kesihatan Bateri dari OS
         healthCondition = when (healthCode) {
             BatteryManager.BATTERY_HEALTH_GOOD -> "Sihat & Baik (Good)"
             BatteryManager.BATTERY_HEALTH_OVERHEAT -> "Terlampau Panas (Overheat)"
@@ -199,12 +187,10 @@ object ChargingSessionManager {
         }
 
         if (isCharging) {
-            // Track Peak Watt
             if (watt > peakWatt) {
                 peakWatt = watt
             }
 
-            // Integrasi mAh: mAh = mA * (dt_seconds / 3600)
             if (lastTimestamp > 0L) {
                 val dtSec = (now - lastTimestamp) / 1000.0
                 if (dtSec in 0.5..10.0 && currentMa > 0) {
@@ -213,7 +199,6 @@ object ChargingSessionManager {
                 }
             }
 
-            // Kira peningkatan peratus untuk kitaran (Cycle count)
             if (previousChargeLevel in 0..100 && levelPct > previousChargeLevel) {
                 cumulativePctCharged += (levelPct - previousChargeLevel)
                 val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -221,13 +206,11 @@ object ChargingSessionManager {
             }
             previousChargeLevel = levelPct
 
-            // Rekod keluk graf
             history.add(ChartPoint(watt.toFloat(), tempC.toFloat(), now))
             if (history.size > MAX_HISTORY_POINTS) {
                 history.removeAt(0)
             }
 
-            // Kemas kini rekod harian secara langsung
             val today = getTodayDateString()
             val todayRecord = dailyRecords.find { it.date == today }
             if (todayRecord != null) {
@@ -236,7 +219,6 @@ object ChargingSessionManager {
                 }
             }
 
-            // Semak penggera
             checkAlarms(context, levelPct, tempC)
         }
 

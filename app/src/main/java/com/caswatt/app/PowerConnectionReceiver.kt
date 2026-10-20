@@ -20,12 +20,10 @@ class PowerConnectionReceiver : BroadcastReceiver() {
 
         when (intent.action) {
             Intent.ACTION_POWER_CONNECTED -> {
-                // 1. Auto-reset sesi cas secara automatik bila cucuk wayar pengecas!
                 ChargingSessionManager.onChargingStarted(context, pct)
                 ContextCompat.startForegroundService(context, serviceIntent)
             }
             Intent.ACTION_POWER_DISCONNECTED -> {
-                // 4. Mula merekod masa nyahcas (discharge duration) sebaik kabel dicabut
                 ChargingSessionManager.onChargingStopped(context, pct)
                 context.stopService(serviceIntent)
             }

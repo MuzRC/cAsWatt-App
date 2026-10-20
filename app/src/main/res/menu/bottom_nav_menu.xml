@@ -16,4 +16,8 @@
         android:id="@+id/nav_settings_alarm"
         android:icon="@android:drawable/ic_lock_idle_alarm"
         android:title="Penggera" />
+    <item
+        android:id="@+id/nav_credits"
+        android:icon="@android:drawable/ic_menu_myplaces"
+        android:title="Kredit" />
 </menu>

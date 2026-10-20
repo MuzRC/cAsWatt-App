@@ -62,7 +62,6 @@ class ChargingChartView @JvmOverloads constructor(
 
         if (plotW <= 0 || plotH <= 0) return
 
-        // Grid
         for (i in 0..4) {
             val y = paddingTop + (plotH / 4f) * i
             canvas.drawLine(paddingLeft, y, w - paddingRight, y, gridPaint)

@@ -27,7 +27,7 @@ class ChargingService : Service() {
     private val updateRunnable = object : Runnable {
         override fun run() {
             updateMetricsAndWidget()
-            handler.postDelayed(this, 1500) // Kemas kini setiap 1.5 saat
+            handler.postDelayed(this, 1500)
         }
     }
 
@@ -72,7 +72,6 @@ class ChargingService : Service() {
             currentMa = if (abs(currentNowMicro) > 10000) abs(currentNowMicro) / 1000 else abs(currentNowMicro)
             watts = (voltageMv.toDouble() * currentMa) / 1000000.0
 
-            // Rekod metrik, kesihatan bateri & periksa penggera
             ChargingSessionManager.recordSample(this, watts, currentMa, tempC, levelPct, isCharging, healthCode)
         }
 
@@ -86,11 +85,9 @@ class ChargingService : Service() {
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.notify(NOTIF_ID, createNotification(text))
 
-        // Refresh Widget
         val updateIntent = Intent(ChargingWidget.ACTION_UPDATE_WIDGET)
         sendBroadcast(updateIntent)
 
-        // Refresh Quick Settings Tile
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             try {
                 TileService.requestListeningState(this, ComponentName(this, CasWattTileService::class.java))

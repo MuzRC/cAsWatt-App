@@ -70,7 +70,6 @@ class ChargingWidget : AppWidgetProvider() {
             if (isCharging) {
                 views.setTextViewText(R.id.tv_widget_status, "CHARGING ⚡")
                 views.setTextColor(R.id.tv_widget_status, 0xFF00E676.toInt())
-                // Paparan 2 tempat perpuluhan untuk Watt
                 views.setTextViewText(R.id.tv_widget_watt, String.format("%.2f W", watts))
                 views.setTextColor(R.id.tv_widget_watt, 0xFF00E676.toInt())
 
@@ -85,7 +84,6 @@ class ChargingWidget : AppWidgetProvider() {
 
                 views.setTextViewText(R.id.tv_widget_status, "NYAHCAS (-${dropPct}%)")
                 views.setTextColor(R.id.tv_widget_status, 0xFF29B6F6.toInt())
-                // Bila dicabut, tunjuk tempoh discharge
                 views.setTextViewText(R.id.tv_widget_watt, durationStr)
                 views.setTextColor(R.id.tv_widget_watt, 0xFFFFFFFF.toInt())
                 views.setTextViewText(R.id.tv_widget_details, String.format("%.2f V • Sejak cabut pengecas", voltageV))

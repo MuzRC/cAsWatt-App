@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Permissions -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
@@ -30,7 +29,6 @@
             </intent-filter>
         </activity>
 
-        <!-- Widget Receiver -->
         <receiver
             android:name=".ChargingWidget"
             android:exported="true">
@@ -43,7 +41,6 @@
                 android:resource="@xml/widget_info" />
         </receiver>
 
-        <!-- Service for Realtime Monitoring -->
         <service
             android:name=".ChargingService"
             android:enabled="true"
@@ -54,7 +51,6 @@
                 android:value="Charging Wattage Real-time Monitor" />
         </service>
 
-        <!-- Power Cable Connection Receiver -->
         <receiver
             android:name=".PowerConnectionReceiver"
             android:exported="true">
@@ -65,7 +61,6 @@
             </intent-filter>
         </receiver>
 
-        <!-- Quick Settings Tile -->
         <service
             android:name=".CasWattTileService"
             android:icon="@android:drawable/ic_lock_idle_charging"

@@ -19,7 +19,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="⚡ CasWatt Pro v4.0"
+            android:text="⚡ CasWatt Pro v4.1"
             android:textColor="#FFFFFF"
             android:textSize="22sp"
             android:textStyle="bold" />
@@ -53,7 +53,7 @@
                 android:orientation="vertical"
                 android:gravity="center_horizontal">
 
-                <!-- Kad Kuasa Utama (2 Decimals Watt) -->
+                <!-- Kad Kuasa Utama -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -72,7 +72,6 @@
                         android:textSize="14sp"
                         android:textStyle="bold" />
 
-                    <!-- Paparan Watt 2 Tempat Perpuluhan -->
                     <TextView
                         android:id="@+id/tv_main_watt"
                         android:layout_width="wrap_content"
@@ -101,7 +100,7 @@
                         android:layout_marginTop="3dp" />
                 </LinearLayout>
 
-                <!-- KAD 4: MASA NYAHCAS (DISCHARGE DURATION TRACKER) -->
+                <!-- Tempoh Nyahcas -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -145,7 +144,6 @@
                     android:orientation="horizontal"
                     android:layout_marginBottom="14dp">
 
-                    <!-- Kad Peak Watt -->
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -181,7 +179,6 @@
                             android:textSize="10sp" />
                     </LinearLayout>
 
-                    <!-- Kad Tenaga Masuk (mAh) -->
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -295,7 +292,6 @@
                     android:textStyle="bold"
                     android:layout_marginBottom="8dp" />
 
-                <!-- Kad Statistik Cas Harian -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -332,7 +328,6 @@
                         android:layout_marginTop="4dp" />
                 </LinearLayout>
 
-                <!-- Kad Log Rekod Harian (Sejarah disimpan) -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -360,7 +355,6 @@
                         android:textSize="13sp" />
                 </LinearLayout>
 
-                <!-- Graf Keluk Kuasa -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -454,7 +448,6 @@
                     android:textSize="12sp"
                     android:layout_marginBottom="16dp" />
 
-                <!-- Kad Status Kesihatan Utama -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -498,7 +491,6 @@
                         android:layout_marginTop="4dp" />
                 </LinearLayout>
 
-                <!-- Kad Metrik Sel Semasa -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -534,7 +526,6 @@
                         android:layout_marginTop="6dp" />
                 </LinearLayout>
 
-                <!-- Kad Panduan Jaga Bateri -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -807,9 +798,198 @@
             </LinearLayout>
         </ScrollView>
 
+        <!-- ================= TAB 5: HALAMAN KREDIT (NEW) ================= -->
+        <ScrollView
+            android:id="@+id/view_tab_credits"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="16dp"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="⚡"
+                    android:textSize="48sp"
+                    android:layout_marginTop="12dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="CasWatt Pro"
+                    android:textColor="#FFFFFF"
+                    android:textSize="26sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Edisi Khas • Versi 4.1.0"
+                    android:textColor="#00E676"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="20dp" />
+
+                <!-- Kad Kredit & Penghargaan Utama -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/widget_background"
+                    android:padding="20dp"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🏆 KREDIT &amp; PENGHARGAAN"
+                        android:textColor="#00E676"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="16dp" />
+
+                    <!-- Section Idea: Muz -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginBottom="14dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="💡 Pencetus Idea &amp; Konsep:"
+                            android:textColor="#90A4AE"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Muz"
+                            android:textColor="#FFFFFF"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            android:layout_marginTop="2dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Visi, idea ciri-ciri utama &amp; pengujian praktikal."
+                            android:textColor="#78909C"
+                            android:textSize="12sp"
+                            android:layout_marginTop="2dp" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#263238"
+                        android:layout_marginBottom="14dp" />
+
+                    <!-- Section Pelaksana: Gemini 3.8 -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginBottom="14dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="🤖 Pelaksana &amp; Jurutera Kod:"
+                            android:textColor="#90A4AE"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Gemini 3.8"
+                            android:textColor="#29B6F6"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            android:layout_marginTop="2dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Pengaturcaraan native Kotlin, binaan servis masa-nyata &amp; automasi CI/CD."
+                            android:textColor="#78909C"
+                            android:textSize="12sp"
+                            android:layout_marginTop="2dp" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#263238"
+                        android:layout_marginBottom="14dp" />
+
+                    <!-- Asal Usul Inovasi -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="📍 Asal Usul Inovasi:"
+                            android:textColor="#90A4AE"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Beaufort, Sabah"
+                            android:textColor="#FFAB00"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:layout_marginTop="2dp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Kad Maklumat & Integriti -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/widget_background"
+                    android:padding="16dp"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="24dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🛡️ Ketelusan &amp; Kualiti:"
+                        android:textColor="#FFFFFF"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="6dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Projek ini dibina tanpa sebarang iklan, bebas bloatware, dan tanpa analitik luaran demi memberikan pengalaman multimeter digital yang tulen dan tepat."
+                        android:textColor="#B0BEC5"
+                        android:textSize="12sp"
+                        android:lineSpacingExtra="4dp" />
+                </LinearLayout>
+
+            </LinearLayout>
+        </ScrollView>
+
     </FrameLayout>
 
-    <!-- Bottom Navigation Bar -->
+    <!-- Bottom Navigation Bar (5 Items) -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
@@ -817,6 +997,7 @@
         android:background="#161820"
         app:itemIconTint="@drawable/nav_item_color"
         app:itemTextColor="@drawable/nav_item_color"
+        app:labelVisibilityMode="labeled"
         app:menu="@menu/bottom_nav_menu" />
 
 </LinearLayout>

@@ -23,14 +23,13 @@ import kotlin.math.abs
 
 class MainActivity : AppCompatActivity() {
 
-    // Tab Views
     private lateinit var tabDashboard: ScrollView
     private lateinit var tabStatsGraph: ScrollView
     private lateinit var tabHealth: ScrollView
     private lateinit var tabSettingsAlarm: ScrollView
+    private lateinit var tabCredits: ScrollView
     private lateinit var bottomNav: BottomNavigationView
 
-    // Tab 1 Elements
     private lateinit var tvStatus: TextView
     private lateinit var tvWatt: TextView
     private lateinit var tvCurrent: TextView
@@ -44,7 +43,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvDischargeSub: TextView
     private lateinit var btnResetSession: Button
 
-    // Tab 2 Elements
     private lateinit var tvTodayChargeCount: TextView
     private lateinit var tvTodayTotalMah: TextView
     private lateinit var tvTodayPeakWatt: TextView
@@ -52,14 +50,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var chartView: ChargingChartView
     private lateinit var btnClearGraph: Button
 
-    // Tab 3 Elements
     private lateinit var tvHealthCondition: TextView
     private lateinit var tvHealthCycles: TextView
     private lateinit var tvHealthCumulative: TextView
     private lateinit var tvHealthVoltageDetail: TextView
     private lateinit var tvHealthTempDetail: TextView
 
-    // Tab 4 Elements
     private lateinit var switchBatteryAlarm: SwitchCompat
     private lateinit var switchTempAlarm: SwitchCompat
     private lateinit var tvBatteryAlarmLabel: TextView
@@ -98,9 +94,9 @@ class MainActivity : AppCompatActivity() {
         tabStatsGraph = findViewById(R.id.view_tab_stats_graph)
         tabHealth = findViewById(R.id.view_tab_health)
         tabSettingsAlarm = findViewById(R.id.view_tab_settings_alarm)
+        tabCredits = findViewById(R.id.view_tab_credits)
         bottomNav = findViewById(R.id.bottom_navigation)
 
-        // Tab 1
         tvStatus = findViewById(R.id.tv_main_status)
         tvWatt = findViewById(R.id.tv_main_watt)
         tvCurrent = findViewById(R.id.tv_main_current)
@@ -114,7 +110,6 @@ class MainActivity : AppCompatActivity() {
         tvDischargeSub = findViewById(R.id.tv_discharge_sub)
         btnResetSession = findViewById(R.id.btn_reset_session)
 
-        // Tab 2
         tvTodayChargeCount = findViewById(R.id.tv_today_charge_count)
         tvTodayTotalMah = findViewById(R.id.tv_today_total_mah)
         tvTodayPeakWatt = findViewById(R.id.tv_today_peak_watt)
@@ -122,14 +117,12 @@ class MainActivity : AppCompatActivity() {
         chartView = findViewById(R.id.charging_chart_view)
         btnClearGraph = findViewById(R.id.btn_clear_graph)
 
-        // Tab 3
         tvHealthCondition = findViewById(R.id.tv_health_condition)
         tvHealthCycles = findViewById(R.id.tv_health_cycles)
         tvHealthCumulative = findViewById(R.id.tv_health_cumulative)
         tvHealthVoltageDetail = findViewById(R.id.tv_health_voltage_detail)
         tvHealthTempDetail = findViewById(R.id.tv_health_temp_detail)
 
-        // Tab 4
         switchBatteryAlarm = findViewById(R.id.switch_battery_alarm)
         switchTempAlarm = findViewById(R.id.switch_temp_alarm)
         tvBatteryAlarmLabel = findViewById(R.id.tv_battery_alarm_label)
@@ -151,6 +144,7 @@ class MainActivity : AppCompatActivity() {
             tabStatsGraph.visibility = View.GONE
             tabHealth.visibility = View.GONE
             tabSettingsAlarm.visibility = View.GONE
+            tabCredits.visibility = View.GONE
 
             when (item.itemId) {
                 R.id.nav_dashboard -> {
@@ -169,6 +163,10 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.nav_settings_alarm -> {
                     tabSettingsAlarm.visibility = View.VISIBLE
+                    true
+                }
+                R.id.nav_credits -> {
+                    tabCredits.visibility = View.VISIBLE
                     true
                 }
                 else -> false
@@ -384,7 +382,6 @@ class MainActivity : AppCompatActivity() {
             abs(currentNowMicro)
         }
 
-        // Formula Kuasa Watt = (V * mA) / 1,000,000
         val watts = (voltageMv.toDouble() * currentMa) / 1000000.0
 
         val tempTenths = intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0)
@@ -400,11 +397,8 @@ class MainActivity : AppCompatActivity() {
             else -> "Menggunakan Bateri"
         }
 
-        // ================= TAB 1: DASHBOARD =================
         tvStatus.text = if (isCharging) "SEDANG DICAS ⚡" else "TIDAK DICAS (NYAHCAS)"
         tvStatus.setTextColor(if (isCharging) 0xFF00E676.toInt() else 0xFFFFAB00.toInt())
-        
-        // 1. TUKAR NILAI WATT KEPADA 2 TEMPAT PERPULUHAN (cth: 18.45 W)
         tvWatt.text = String.format("%.2f W", watts)
         tvWatt.setTextColor(if (isCharging) 0xFF00E676.toInt() else 0xFFFFFFFF.toInt())
         tvCurrent.text = "Arus: $currentMa mA"
@@ -416,7 +410,6 @@ class MainActivity : AppCompatActivity() {
         tvPeakWatt.text = String.format("%.2f W", ChargingSessionManager.peakWatt)
         tvTotalMah.text = String.format("%.0f mAh", ChargingSessionManager.totalMah)
 
-        // 4. TEMPOH NYAHCAS (DISCHARGE DURATION)
         if (isCharging) {
             tvDischargeDuration.text = "Sedang Dicas ⚡"
             tvDischargeDuration.setTextColor(0xFF00E676.toInt())
@@ -429,7 +422,6 @@ class MainActivity : AppCompatActivity() {
             tvDischargeSub.text = "Bateri: $pct% (Turun ${dropPct}% dari ${ChargingSessionManager.lastUnplugLevel}%)"
         }
 
-        // ================= TAB 2: STATISTIK HARIAN =================
         val todayRecord = ChargingSessionManager.dailyRecords.firstOrNull()
         tvTodayChargeCount.text = "Berapa Kali Dicas Hari Ini: ${todayRecord?.count ?: 0} kali"
         tvTodayTotalMah.text = String.format("Jumlah Tenaga Masuk Hari Ini: %.0f mAh", todayRecord?.totalMah ?: 0.0)
@@ -439,7 +431,6 @@ class MainActivity : AppCompatActivity() {
             chartView.invalidate()
         }
 
-        // ================= TAB 3: KESIHATAN BATERI =================
         tvHealthCondition.text = ChargingSessionManager.healthCondition
         tvHealthCycles.text = String.format("Anggaran Kitaran: %.1f kitaran", ChargingSessionManager.getEstimatedCycles())
         tvHealthCumulative.text = String.format("Jumlah Kumulatif Cas: %.0f%% cas", ChargingSessionManager.cumulativePctCharged)

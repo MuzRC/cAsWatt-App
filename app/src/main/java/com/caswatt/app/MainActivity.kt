@@ -63,6 +63,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvTodayPeakWatt: TextView
     private lateinit var btnExportCsv: Button
     private lateinit var llSessionHistoryContainer: LinearLayout
+    private lateinit var btnToggleSessions: Button
+    private var isSessionsExpanded: Boolean = false
     private lateinit var llDailyHistoryContainer: LinearLayout
     private lateinit var chartView: ChargingChartView
     private lateinit var btnClearGraph: Button
@@ -143,6 +145,11 @@ class MainActivity : AppCompatActivity() {
         tvTodayPeakWatt = findViewById(R.id.tv_today_peak_watt)
         btnExportCsv = findViewById(R.id.btn_export_csv)
         llSessionHistoryContainer = findViewById(R.id.ll_session_history_container)
+        btnToggleSessions = findViewById(R.id.btn_toggle_sessions)
+        btnToggleSessions.setOnClickListener {
+            isSessionsExpanded = !isSessionsExpanded
+            renderSessionHistory()
+        }
         llDailyHistoryContainer = findViewById(R.id.ll_daily_history_container)
         chartView = findViewById(R.id.charging_chart_view)
         btnClearGraph = findViewById(R.id.btn_clear_graph)
@@ -210,7 +217,9 @@ class MainActivity : AppCompatActivity() {
     private fun renderSessionHistory() {
         llSessionHistoryContainer.removeAllViews()
 
-        if (ChargingSessionManager.sessionRecords.isEmpty()) {
+        val totalRecords = ChargingSessionManager.sessionRecords.size
+        if (totalRecords == 0) {
+            btnToggleSessions.visibility = View.GONE
             val tvEmpty = TextView(this).apply {
                 text = "Belum ada rekod sesi cas. Cucuk dan cabut pengecas untuk mula merekod!"
                 setTextColor(Color.parseColor("#90A4AE"))
@@ -220,63 +229,68 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
+        // Tampilkan 4 sesi jika diciutkan, atau hingga 30 jika diperluas
+        val displayLimit = if (isSessionsExpanded) 30 else 4
+        val displayList = ChargingSessionManager.sessionRecords.take(displayLimit)
+
+        if (totalRecords > 4) {
+            btnToggleSessions.visibility = View.VISIBLE
+            btnToggleSessions.text = if (isSessionsExpanded) {
+                "Sembunyikan Sesi Lama ▲"
+            } else {
+                "Tampilkan Lebih Banyak (${totalRecords - 4} sesi lagi) ▼"
+            }
+        } else {
+            btnToggleSessions.visibility = View.GONE
+        }
+
         val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
         val dateFormat = SimpleDateFormat("dd MMM", Locale.getDefault())
 
-        for (session in ChargingSessionManager.sessionRecords.take(30)) {
+        for ((index, session) in displayList.withIndex()) {
             val row = LinearLayout(this).apply {
                 orientation = LinearLayout.VERTICAL
-                setPadding(0, 10, 0, 10)
+                setPadding(0, 6, 0, 6)
             }
 
             val startStr = "${dateFormat.format(Date(session.startTime))} ${timeFormat.format(Date(session.startTime))}"
             val endStr = timeFormat.format(Date(session.endTime))
             val durStr = ChargingSessionManager.formatDuration(session.endTime - session.startTime)
+            val gained = session.endLevel - session.startLevel
+            val gainStr = if (gained >= 0) "+$gained%" else "$gained%"
 
-            val tvTitle = TextView(this).apply {
-                text = "⚡ $startStr - $endStr ($durStr)"
+            // Baris 1: Waktu & Perubahan Baterai (Padat & Tegas)
+            val tvHeader = TextView(this).apply {
+                text = "⚡ $startStr - $endStr ($durStr) • ${session.startLevel}% ➔ ${session.endLevel}% ($gainStr)"
                 setTextColor(Color.parseColor("#00E676"))
-                textSize = 14f
+                textSize = 13f
                 setTypeface(null, android.graphics.Typeface.BOLD)
             }
 
-            val tvLevelInfo = TextView(this).apply {
-                val gained = session.endLevel - session.startLevel
-                val gainStr = if (gained >= 0) "+$gained%" else "$gained%"
-                text = "Paras Bateri: ${session.startLevel}% ➔ ${session.endLevel}% ($gainStr)"
-                setTextColor(Color.parseColor("#ECEFF1"))
-                textSize = 12f
-                setPadding(0, 2, 0, 0)
-            }
-
-            val tvMetrics = TextView(this).apply {
-                text = "Puncak: ${String.format(Locale.US, "%.2f W", session.peakWatt)} • ${String.format(Locale.US, "%.0f mAh", session.totalMah)} • ${String.format(Locale.US, "%.2f Wh", session.energyWh)} • RM ${String.format(Locale.US, "%.4f", session.costMyr)}"
+            // Baris 2: Daya Puncak, Arus Masuk & Kualitas Kabel (Ringkas)
+            val tvDetails = TextView(this).apply {
+                val cableShort = if (session.cableQuality.contains("Fast", ignoreCase = true)) "⚡ Cepat" else if (session.cableQuality.contains("Lemah", ignoreCase = true)) "⚠️ Rintangan Tinggi" else "Standar"
+                text = "${String.format(Locale.US, "%.1fW", session.peakWatt)} • ${String.format(Locale.US, "%.0f mAh", session.totalMah)} • ${String.format(Locale.US, "%.2f Wh", session.energyWh)} | $cableShort"
                 setTextColor(Color.parseColor("#B0BEC5"))
                 textSize = 12f
                 setPadding(0, 2, 0, 0)
             }
 
-            val tvCable = TextView(this).apply {
-                text = "Kabel: ${session.cableQuality}"
-                setTextColor(Color.parseColor("#81C784"))
-                textSize = 11f
-                setPadding(0, 2, 0, 0)
-            }
+            row.addView(tvHeader)
+            row.addView(tvDetails)
 
-            row.addView(tvTitle)
-            row.addView(tvLevelInfo)
-            row.addView(tvMetrics)
-            row.addView(tvCable)
-
-            val divider = View(this).apply {
-                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1).apply {
-                    setMargins(0, 10, 0, 10)
+            if (index < displayList.size - 1) {
+                val divider = View(this).apply {
+                    layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1).apply {
+                        setMargins(0, 8, 0, 8)
+                    }
+                    setBackgroundColor(Color.parseColor("#21262D"))
                 }
-                setBackgroundColor(Color.parseColor("#263238"))
+                llSessionHistoryContainer.addView(row)
+                llSessionHistoryContainer.addView(divider)
+            } else {
+                llSessionHistoryContainer.addView(row)
             }
-
-            llSessionHistoryContainer.addView(row)
-            llSessionHistoryContainer.addView(divider)
         }
     }
 

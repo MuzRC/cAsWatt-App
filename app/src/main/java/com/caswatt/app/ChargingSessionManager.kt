@@ -304,7 +304,7 @@ object ChargingSessionManager {
 
         // Simpan sesi terperinci jika cas melebihi 20 saat
         val durationSec = (now - sessionStartTime) / 1000
-        if (durationSec >= 20 && (totalMah > 1.0 || peakWatt > 0.5)) {
+        if (durationSec >= 90 && (totalMah >= 20.0 || (currentLevel - sessionStartLevel) >= 1)) {
             val session = SessionRecord(
                 id = sessionStartTime,
                 startTime = sessionStartTime,

@@ -39,6 +39,31 @@ class PowerConnectionReceiver : BroadcastReceiver() {
                     Log.e("PowerReceiver", "Gagal menghentikan ChargingService: ${e.message}")
                 }
             }
+
+            Intent.ACTION_BOOT_COMPLETED -> {
+                // Semak jika kabel pengecas memang sedia bercucuk sebaik telefon selesai boot
+                val batteryStatus = try {
+                    context.applicationContext.registerReceiver(
+                        null,
+                        IntentFilter(Intent.ACTION_BATTERY_CHANGED)
+                    )
+                } catch (_: Exception) {
+                    null
+                }
+
+                val status = batteryStatus?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
+                val isPlugged = status == BatteryManager.BATTERY_STATUS_CHARGING ||
+                        status == BatteryManager.BATTERY_STATUS_FULL
+
+                if (isPlugged) {
+                    ChargingSessionManager.onChargingStarted(context, pct)
+                    try {
+                        ContextCompat.startForegroundService(context, serviceIntent)
+                    } catch (e: Exception) {
+                        Log.e("PowerReceiver", "Gagal memulakan ChargingService semasa boot: ${e.message}")
+                    }
+                }
+            }
         }
 
         // 3. Hantar arahan kemas kini ke Widget secara eksplisit supaya tidak disekat sistem

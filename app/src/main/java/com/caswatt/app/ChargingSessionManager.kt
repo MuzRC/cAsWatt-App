@@ -55,6 +55,9 @@ object ChargingSessionManager {
     private const val KEY_CUMULATIVE_PCT = "cumulative_pct_charged"
     private const val KEY_HEALTH_STATUS = "last_health_status"
 
+    // Penanda keselamatan init
+    private var isInitialized = false
+
     // Sesi Semasa
     var peakWatt: Double = 0.0
     var totalMah: Double = 0.0
@@ -111,7 +114,16 @@ object ChargingSessionManager {
     // Tarif Elektrik SESB Sabah Asas: RM 0.38 per kWh
     private const val TARIFF_PER_KWH = 0.38
 
+    @Synchronized
+    fun ensureInit(context: Context) {
+        if (!isInitialized) {
+            init(context.applicationContext)
+        }
+    }
+
+    @Synchronized
     fun init(context: Context) {
+        if (isInitialized) return
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         batteryAlarmEnabled = prefs.getBoolean(KEY_BATTERY_ALARM, true)
         batteryThreshold = prefs.getInt(KEY_BATTERY_THRESHOLD, 80)
@@ -138,6 +150,7 @@ object ChargingSessionManager {
 
         loadDailyRecords(context)
         loadSessionRecords(context)
+        isInitialized = true
     }
 
     private fun getTodayDateString(): String {
@@ -229,6 +242,7 @@ object ChargingSessionManager {
 
     @Synchronized
     fun checkStateTransition(context: Context, isCharging: Boolean, levelPct: Int) {
+        ensureInit(context)
         if (wasCharging == null) {
             wasCharging = isCharging
             return
@@ -243,6 +257,7 @@ object ChargingSessionManager {
 
     @Synchronized
     fun onChargingStarted(context: Context, currentLevel: Int) {
+        ensureInit(context)
         val now = System.currentTimeMillis()
         peakWatt = 0.0
         totalMah = 0.0
@@ -266,7 +281,7 @@ object ChargingSessionManager {
         if (todayRecord == null) {
             todayRecord = DailyRecord(date = today, count = 1, totalMah = 0.0, peakWatt = 0.0)
             dailyRecords.add(0, todayRecord)
-            if (dailyRecords.size > 3650) { // Had 10 Tahun
+            if (dailyRecords.size > 3650) {
                 dailyRecords.removeAt(dailyRecords.size - 1)
             }
         } else {
@@ -277,6 +292,7 @@ object ChargingSessionManager {
 
     @Synchronized
     fun onChargingStopped(context: Context, currentLevel: Int) {
+        ensureInit(context)
         val now = System.currentTimeMillis()
         lastUnplugTimestamp = now
         lastUnplugLevel = currentLevel
@@ -304,7 +320,7 @@ object ChargingSessionManager {
 
         // Simpan sesi terperinci jika cas melebihi 20 saat
         val durationSec = (now - sessionStartTime) / 1000
-        if (durationSec >= 90 && (totalMah >= 20.0 || (currentLevel - sessionStartLevel) >= 1)) {
+        if (durationSec >= 20 && (totalMah >= 5.0 || (currentLevel - sessionStartLevel) >= 1)) {
             val session = SessionRecord(
                 id = sessionStartTime,
                 startTime = sessionStartTime,
@@ -318,7 +334,7 @@ object ChargingSessionManager {
                 cableQuality = cableQuality
             )
             sessionRecords.add(0, session)
-            if (sessionRecords.size > 150) { // Simpan 150 sesi terperinci terkini
+            if (sessionRecords.size > 150) {
                 sessionRecords.removeAt(sessionRecords.size - 1)
             }
             saveSessionRecords(context)
@@ -335,6 +351,7 @@ object ChargingSessionManager {
         isCharging: Boolean,
         healthCode: Int
     ) {
+        ensureInit(context)
         checkStateTransition(context, isCharging, levelPct)
         val now = System.currentTimeMillis()
 
@@ -354,10 +371,12 @@ object ChargingSessionManager {
 
             if (lastTimestamp > 0L) {
                 val dtSec = (now - lastTimestamp) / 1000.0
-                if (dtSec in 0.5..10.0 && currentMa > 0) {
-                    val dMah = currentMa * (dtSec / 3600.0)
+                // Hadkan selang maksimum 60 saat semasa mod tidur/skrin tutup
+                if (dtSec >= 0.5 && currentMa > 0) {
+                    val safeDt = dtSec.coerceAtMost(60.0)
+                    val dMah = currentMa * (safeDt / 3600.0)
                     totalMah += dMah
-                    val dWh = (watt * dtSec) / 3600.0
+                    val dWh = (watt * safeDt) / 3600.0
                     energyWh += dWh
                     costMyr = (energyWh / 1000.0) * TARIFF_PER_KWH
                 }
@@ -386,7 +405,7 @@ object ChargingSessionManager {
 
             // 3. Smart ETA (Anggaran Masa Siap Cas)
             if (currentMa > 150) {
-                val estimatedCap = 5000.0 // Anggaran kapasiti bateri telefon moden
+                val estimatedCap = 5000.0
                 etaTo80Min = if (levelPct < 80) {
                     val remMah = ((80 - levelPct) / 100.0) * estimatedCap
                     ((remMah / currentMa) * 60).toInt().coerceAtLeast(1)
@@ -427,7 +446,6 @@ object ChargingSessionManager {
 
             checkAlarms(context, levelPct, tempC)
         } else {
-            // Semasa nyahcas: Penggera Bateri Lemah (<= 20%)
             if (levelPct <= 20 && !lowBatteryAlertFired && lowBatteryAlarmEnabled) {
                 lowBatteryAlertFired = true
                 triggerAlarm(context)

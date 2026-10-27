@@ -9,6 +9,7 @@ import android.graphics.Color
 import android.os.BatteryManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
@@ -103,7 +104,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        ChargingSessionManager.init(this)
+        // Pastikan storan data sedia ada dimuat turun dengan selamat
+        ChargingSessionManager.ensureInit(this)
 
         initViews()
         setupBottomNav()
@@ -217,7 +219,12 @@ class MainActivity : AppCompatActivity() {
     private fun renderSessionHistory() {
         llSessionHistoryContainer.removeAllViews()
 
-        val totalRecords = ChargingSessionManager.sessionRecords.size
+        // Lindungi pembacaan senarai daripada perubahan serentak thread lain
+        val allSessions = synchronized(ChargingSessionManager) {
+            ChargingSessionManager.sessionRecords.toList()
+        }
+
+        val totalRecords = allSessions.size
         if (totalRecords == 0) {
             btnToggleSessions.visibility = View.GONE
             val tvEmpty = TextView(this).apply {
@@ -229,9 +236,8 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        // Tampilkan 4 sesi jika diciutkan, atau hingga 30 jika diperluas
         val displayLimit = if (isSessionsExpanded) 30 else 4
-        val displayList = ChargingSessionManager.sessionRecords.take(displayLimit)
+        val displayList = allSessions.take(displayLimit)
 
         if (totalRecords > 4) {
             btnToggleSessions.visibility = View.VISIBLE
@@ -259,7 +265,6 @@ class MainActivity : AppCompatActivity() {
             val gained = session.endLevel - session.startLevel
             val gainStr = if (gained >= 0) "+$gained%" else "$gained%"
 
-            // Baris 1: Waktu & Perubahan Baterai (Padat & Tegas)
             val tvHeader = TextView(this).apply {
                 text = "⚡ $startStr - $endStr ($durStr) • ${session.startLevel}% ➔ ${session.endLevel}% ($gainStr)"
                 setTextColor(Color.parseColor("#00E676"))
@@ -267,9 +272,14 @@ class MainActivity : AppCompatActivity() {
                 setTypeface(null, android.graphics.Typeface.BOLD)
             }
 
-            // Baris 2: Daya Puncak, Arus Masuk & Kualitas Kabel (Ringkas)
             val tvDetails = TextView(this).apply {
-                val cableShort = if (session.cableQuality.contains("Fast", ignoreCase = true)) "⚡ Cepat" else if (session.cableQuality.contains("Lemah", ignoreCase = true)) "⚠️ Rintangan Tinggi" else "Standar"
+                val cableShort = if (session.cableQuality.contains("Fast", ignoreCase = true)) {
+                    "⚡ Cepat"
+                } else if (session.cableQuality.contains("Lemah", ignoreCase = true)) {
+                    "⚠️ Rintangan Tinggi"
+                } else {
+                    "Standar"
+                }
                 text = "${String.format(Locale.US, "%.1fW", session.peakWatt)} • ${String.format(Locale.US, "%.0f mAh", session.totalMah)} • ${String.format(Locale.US, "%.2f Wh", session.energyWh)} | $cableShort"
                 setTextColor(Color.parseColor("#B0BEC5"))
                 textSize = 12f
@@ -297,7 +307,11 @@ class MainActivity : AppCompatActivity() {
     private fun renderDailyHistory() {
         llDailyHistoryContainer.removeAllViews()
 
-        if (ChargingSessionManager.dailyRecords.isEmpty()) {
+        val allDaily = synchronized(ChargingSessionManager) {
+            ChargingSessionManager.dailyRecords.toList()
+        }
+
+        if (allDaily.isEmpty()) {
             val tvEmpty = TextView(this).apply {
                 text = "Belum ada rekod cas harian. Cucuk pengecas untuk mula merekod!"
                 setTextColor(Color.parseColor("#90A4AE"))
@@ -307,7 +321,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        for (record in ChargingSessionManager.dailyRecords) {
+        for (record in allDaily) {
             val row = LinearLayout(this).apply {
                 orientation = LinearLayout.VERTICAL
                 setPadding(0, 8, 0, 8)
@@ -450,20 +464,40 @@ class MainActivity : AppCompatActivity() {
             exportRecordsToCsv()
         }
 
+        // Pembaikan: Set semula meter sesi tanpa menambah kiraan bilangan cas harian
         btnResetSession.setOnClickListener {
-            val intent = registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+            val intent = try {
+                registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+            } catch (_: Exception) {
+                null
+            }
             val level = intent?.getIntExtra(BatteryManager.EXTRA_LEVEL, 100) ?: 100
-            ChargingSessionManager.onChargingStarted(this, level)
+
+            synchronized(ChargingSessionManager) {
+                ChargingSessionManager.peakWatt = 0.0
+                ChargingSessionManager.totalMah = 0.0
+                ChargingSessionManager.energyWh = 0.0
+                ChargingSessionManager.costMyr = 0.0
+                ChargingSessionManager.sessionStartTime = System.currentTimeMillis()
+                ChargingSessionManager.sessionStartLevel = level
+                ChargingSessionManager.history.clear()
+            }
+
             tvPeakWatt.text = "0.00 W"
             tvTotalMah.text = "0 mAh"
             tvEnergyWh.text = "0.00 Wh"
             tvCostMyr.text = "RM 0.00"
             chartView.invalidate()
+            Toast.makeText(this, "Meter sesi berjaya diset semula!", Toast.LENGTH_SHORT).show()
         }
 
+        // Pembaikan: Pengosongan graf yang selamat daripada nahas multithreading
         btnClearGraph.setOnClickListener {
-            ChargingSessionManager.history.clear()
+            synchronized(ChargingSessionManager) {
+                ChargingSessionManager.history.clear()
+            }
             chartView.invalidate()
+            Toast.makeText(this, "Graf keluk telah dikosongkan.", Toast.LENGTH_SHORT).show()
         }
 
         btnToggleService.setOnClickListener {
@@ -472,8 +506,13 @@ class MainActivity : AppCompatActivity() {
                 stopService(serviceIntent)
                 btnToggleService.text = "Jalankan Servis Background"
             } else {
-                ContextCompat.startForegroundService(this, serviceIntent)
-                btnToggleService.text = "Hentikan Servis Background"
+                try {
+                    ContextCompat.startForegroundService(this, serviceIntent)
+                    btnToggleService.text = "Hentikan Servis Background"
+                } catch (e: Exception) {
+                    Log.e("MainActivity", "Gagal memulakan servis: ${e.message}")
+                    Toast.makeText(this, "Gagal memulakan servis: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
@@ -489,7 +528,15 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        registerReceiver(batteryReceiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+        // Pembaikan Android 14+ (API 34): Daftarkan receiver dengan bendera NOT_EXPORTED secara selamat
+        val filter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
+        ContextCompat.registerReceiver(
+            this,
+            batteryReceiver,
+            filter,
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
+
         btnToggleService.text = if (ChargingService.isRunning) "Hentikan Servis Background" else "Jalankan Servis Background"
         renderSessionHistory()
         renderDailyHistory()
@@ -497,11 +544,13 @@ class MainActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        unregisterReceiver(batteryReceiver)
+        try {
+            unregisterReceiver(batteryReceiver)
+        } catch (_: Exception) {}
     }
 
     private fun updateBatteryInfo(intent: Intent) {
-        val batteryManager = getSystemService(Context.BATTERY_SERVICE) as BatteryManager
+        val batteryManager = getSystemService(Context.BATTERY_SERVICE) as? BatteryManager
 
         val level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
         val scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
@@ -514,8 +563,10 @@ class MainActivity : AppCompatActivity() {
         val isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
                 status == BatteryManager.BATTERY_STATUS_FULL
 
-        val currentNowMicro = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)
-        val currentMa = if (abs(currentNowMicro) > 10000) {
+        val currentNowMicro = batteryManager?.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW) ?: 0
+        
+        // Pembaikan had pemisah (50,000) supaya arus pengecasan pantas 10A-12A tidak tersalah bahagi
+        val currentMa = if (abs(currentNowMicro) > 50000) {
             abs(currentNowMicro) / 1000
         } else {
             abs(currentNowMicro)
@@ -525,10 +576,6 @@ class MainActivity : AppCompatActivity() {
 
         val tempTenths = intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0)
         val tempC = tempTenths / 10.0
-
-        val healthCode = intent.getIntExtra(BatteryManager.EXTRA_HEALTH, BatteryManager.BATTERY_HEALTH_UNKNOWN)
-
-        ChargingSessionManager.checkStateTransition(this, isCharging, pct)
 
         val plugged = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1)
         val plugType = when (plugged) {
@@ -592,7 +639,9 @@ class MainActivity : AppCompatActivity() {
             tvDischargeSub.text = "Bateri: $pct% (Turun ${dropPct}% dari ${ChargingSessionManager.lastUnplugLevel}%)"
         }
 
-        val todayRecord = ChargingSessionManager.dailyRecords.firstOrNull()
+        val todayRecord = synchronized(ChargingSessionManager) {
+            ChargingSessionManager.dailyRecords.firstOrNull()
+        }
         tvTodayChargeCount.text = "Berapa Kali Dicas Hari Ini: ${todayRecord?.count ?: 0} kali"
         tvTodayTotalMah.text = String.format(Locale.US, "Jumlah Tenaga Masuk Hari Ini: %.0f mAh", todayRecord?.totalMah ?: 0.0)
         tvTodayPeakWatt.text = String.format(Locale.US, "Watt Puncak Hari Ini: %.2f W", todayRecord?.peakWatt ?: 0.0)

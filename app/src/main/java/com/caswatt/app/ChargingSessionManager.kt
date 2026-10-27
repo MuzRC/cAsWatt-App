@@ -339,6 +339,9 @@ object ChargingSessionManager {
             }
             saveSessionRecords(context)
         }
+
+        // Simpan statistik kesihatan bateri secara automatik
+BatteryHealthManager.onChargingSessionFinished(context, sessionStartLevel, currentLevel, totalMah)
     }
 
     @Synchronized

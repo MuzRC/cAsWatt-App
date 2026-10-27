@@ -28,11 +28,9 @@ jobs:
       with:
         gradle-version: '8.7'
 
-    - name: Beri Kuasa Eksekusi Gradlew
-      run: chmod +x gradlew
-
+    # Langkah chmod dibuang kerana guna gradle global yang dipasang di atas
     - name: Build Unsigned Release APK
-      run: ./gradlew assembleRelease --stacktrace
+      run: gradle assembleRelease --stacktrace
 
     - name: Sign Android Release APK
       uses: r0adkll/sign-android-release@v1

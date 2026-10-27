@@ -650,7 +650,8 @@ class MainActivity : AppCompatActivity() {
             chartView.invalidate()
         }
 
-        tvHealthCondition.text = ChargingSessionManager.healthCondition
+        // Paparkan peratus kesihatan sebenar
+tvHealthCondition.text = "Kesihatan: " + BatteryHealthManager.getFormattedHealthSummary(this)
         tvHealthCycles.text = String.format(Locale.US, "Anggaran Kitaran: %.1f kitaran", ChargingSessionManager.getEstimatedCycles())
         tvHealthCumulative.text = String.format(Locale.US, "Jumlah Kumulatif Cas: %.0f%% cas", ChargingSessionManager.cumulativePctCharged)
         tvHealthVoltageDetail.text = String.format(Locale.US, "Voltan Sel Semasa: %.2f V (Normal: 3.7V - 4.4V)", voltageV)

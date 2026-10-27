@@ -98,7 +98,15 @@
                         android:textColor="#ECEFF1"
                         android:textSize="17sp"
                         android:layout_marginTop="3dp" />
-
+<TextView
+    android:id="@+id/tv_main_temp"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="Suhu: 0.0 °C"
+    android:textColor="#FFB74D"
+    android:textSize="17sp"
+    android:textStyle="bold"
+    android:layout_marginTop="3dp" />
                     <!-- Thermal Throttling Badge -->
                     <TextView
                         android:id="@+id/tv_thermal_throttle"
@@ -386,15 +394,6 @@
                         android:text="Peratus Bateri: --%"
                         android:textColor="#CFD8DC"
                         android:textSize="14sp" />
-
-                    <TextView
-                        android:id="@+id/tv_main_temp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Suhu Bateri: -- °C"
-                        android:textColor="#CFD8DC"
-                        android:textSize="14sp"
-                        android:layout_marginTop="6dp" />
 
                     <TextView
                         android:id="@+id/tv_main_plug"

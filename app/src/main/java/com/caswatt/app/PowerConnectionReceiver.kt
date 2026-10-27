@@ -67,10 +67,14 @@ class PowerConnectionReceiver : BroadcastReceiver() {
         }
 
         // 3. Hantar arahan kemas kini ke Widget secara eksplisit supaya tidak disekat sistem
-        val updateIntent = Intent(ChargingWidget.ACTION_UPDATE_WIDGET).apply {
-            setPackage(context.packageName)
+        try {
+            val updateIntent = Intent(ChargingWidget.ACTION_UPDATE_WIDGET).apply {
+                setPackage(context.packageName)
+            }
+            context.sendBroadcast(updateIntent)
+        } catch (_: Exception) {
+            // Abaikan jika tiada widget dipasang di skrin utama
         }
-        context.sendBroadcast(updateIntent)
     }
 
     /**
@@ -96,7 +100,7 @@ class PowerConnectionReceiver : BroadcastReceiver() {
             val scale = stickyIntent?.getIntExtra(BatteryManager.EXTRA_SCALE, -1) ?: -1
             if (level >= 0 && scale > 0) (level * 100) / scale else 50
         } catch (_: Exception) {
-            50 // Nilai tengah yang selamat sekiranya peranti langsung tidak memberi respon
+            50 // Nilai sandaran selamat sekiranya sistem tiada respon
         }
     }
 }

@@ -574,7 +574,8 @@ class MainActivity : AppCompatActivity() {
         val status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
         val isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
                 status == BatteryManager.BATTERY_STATUS_FULL
-
+		// 👉 SELITKAN BARIS INI SUPAYA MA MASA NYAHCAS TER-RESET BILA CABUT WAYAR:
+        ChargingSessionManager.checkStateTransition(this, isCharging, pct)
         val currentNowMicro = batteryManager?.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW) ?: 0
         
         // Pembaikan had pemisah (50,000) supaya arus pengecasan pantas 10A-12A tidak tersalah bahagi

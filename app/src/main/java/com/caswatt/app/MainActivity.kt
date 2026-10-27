@@ -9,13 +9,16 @@ import android.graphics.Color
 import android.os.BatteryManager
 import android.os.Build
 import android.os.Bundle
+import android.text.InputType
 import android.util.Log
 import android.view.View
 import android.widget.Button
+import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.app.ActivityCompat
@@ -157,6 +160,11 @@ class MainActivity : AppCompatActivity() {
         btnClearGraph = findViewById(R.id.btn_clear_graph)
 
         tvHealthCondition = findViewById(R.id.tv_health_condition)
+        // Membolehkan pengguna menyentuh status kesihatan untuk memasukkan kapasiti asal kilang
+        tvHealthCondition.setOnClickListener {
+            showEditCapacityDialog()
+        }
+
         tvHealthCycles = findViewById(R.id.tv_health_cycles)
         tvHealthCumulative = findViewById(R.id.tv_health_cumulative)
         tvHealthVoltageDetail = findViewById(R.id.tv_health_voltage_detail)
@@ -650,13 +658,42 @@ class MainActivity : AppCompatActivity() {
             chartView.invalidate()
         }
 
-        // Paparkan peratus kesihatan sebenar
-tvHealthCondition.text = "Kesihatan: " + BatteryHealthManager.getFormattedHealthSummary(this)
+        // Paparkan status kesihatan sebenar dengan petunjuk boleh disentuh
+        tvHealthCondition.text = "Kesihatan: " + BatteryHealthManager.getFormattedHealthSummary(this) + " (Sentuh untuk ubah)"
         tvHealthCycles.text = String.format(Locale.US, "Anggaran Kitaran: %.1f kitaran", ChargingSessionManager.getEstimatedCycles())
         tvHealthCumulative.text = String.format(Locale.US, "Jumlah Kumulatif Cas: %.0f%% cas", ChargingSessionManager.cumulativePctCharged)
         tvHealthVoltageDetail.text = String.format(Locale.US, "Voltan Sel Semasa: %.2f V (Normal: 3.7V - 4.4V)", voltageV)
         val tempStatus = if (tempC < 40.0) "Zon Selamat (Selesa)" else if (tempC < 45.0) "Zon Suam" else "Zon Panas Bahaya!"
         tvHealthTempDetail.text = String.format(Locale.US, "Suhu Sel: %.1f °C (%s)", tempC, tempStatus)
+    }
+
+    private fun showEditCapacityDialog() {
+        val currentCapacity = BatteryHealthManager.getDesignCapacity(this)
+
+        val input = EditText(this).apply {
+            inputType = InputType.TYPE_CLASS_NUMBER
+            hint = "Contoh: 5000"
+            setText(currentCapacity.toString())
+            setSelection(text.length)
+            setPadding(60, 40, 60, 20)
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle("Tetapkan Kapasiti Asal Kilang")
+            .setMessage("Masukkan spesifikasi kapasiti bateri asal telefon (Design Capacity dalam unit mAh):")
+            .setView(input)
+            .setPositiveButton("Simpan") { _, _ ->
+                val enteredValue = input.text.toString().toIntOrNull()
+                if (enteredValue != null && enteredValue in 1000..15000) {
+                    BatteryHealthManager.setDesignCapacity(this, enteredValue)
+                    tvHealthCondition.text = "Kesihatan: " + BatteryHealthManager.getFormattedHealthSummary(this) + " (Sentuh untuk ubah)"
+                    Toast.makeText(this, "Kapasiti berjaya disimpan: ${enteredValue} mAh", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "Sila masukkan nilai mAh yang sah (1000 - 15000 mAh)", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Batal", null)
+            .show()
     }
 
     private fun exportRecordsToCsv() {

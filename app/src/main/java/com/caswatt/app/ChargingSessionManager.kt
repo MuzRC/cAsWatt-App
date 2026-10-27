@@ -55,7 +55,7 @@ object ChargingSessionManager {
     private const val KEY_CUMULATIVE_PCT = "cumulative_pct_charged"
     private const val KEY_HEALTH_STATUS = "last_health_status"
 
-    // Penanda keselamatan init
+    // Penanda keselamatan inisialisasi
     private var isInitialized = false
 
     // Sesi Semasa
@@ -151,6 +151,9 @@ object ChargingSessionManager {
         loadDailyRecords(context)
         loadSessionRecords(context)
         isInitialized = true
+
+        // Mulakan enjin suara TTS
+        BatteryVoiceAlert.init(context)
     }
 
     private fun getTodayDateString(): String {
@@ -341,7 +344,7 @@ object ChargingSessionManager {
         }
 
         // Simpan statistik kesihatan bateri secara automatik
-BatteryHealthManager.onChargingSessionFinished(context, sessionStartLevel, currentLevel, totalMah)
+        BatteryHealthManager.onChargingSessionFinished(context, sessionStartLevel, currentLevel, totalMah)
     }
 
     @Synchronized
@@ -429,6 +432,7 @@ BatteryHealthManager.onChargingSessionFinished(context, sessionStartLevel, curre
                 if (currentMa in 1..40 && !fullSaturationAlertFired && trickleAlarmEnabled) {
                     fullSaturationAlertFired = true
                     triggerAlarm(context)
+                    BatteryVoiceAlert.speak(context, "Pengecasan selesai. Bateri kini seratus peratus tepu.")
                 }
             } else {
                 isTrickleCharging = false
@@ -452,6 +456,7 @@ BatteryHealthManager.onChargingSessionFinished(context, sessionStartLevel, curre
             if (levelPct <= 20 && !lowBatteryAlertFired && lowBatteryAlarmEnabled) {
                 lowBatteryAlertFired = true
                 triggerAlarm(context)
+                BatteryVoiceAlert.speak(context, "Amaran. Bateri lemah pada paras $levelPct peratus. Sila cucuk pengecas.")
             }
         }
 
@@ -462,11 +467,13 @@ BatteryHealthManager.onChargingSessionFinished(context, sessionStartLevel, curre
         if (batteryAlarmEnabled && !batteryAlarmFired && levelPct >= batteryThreshold) {
             batteryAlarmFired = true
             triggerAlarm(context)
+            BatteryVoiceAlert.speak(context, "Perhatian. Paras bateri sudah mencecah $levelPct peratus. Sila cabut kabel pengecas.")
         }
 
         if (tempAlarmEnabled && !tempAlarmFired && tempC >= tempThreshold) {
             tempAlarmFired = true
             triggerAlarm(context)
+            BatteryVoiceAlert.speak(context, "Amaran kecemasan! Suhu bateri terlalu tinggi, mencecah ${tempC.toInt()} darjah celcius. Sila cabut pengecas segera!")
         }
     }
 

@@ -421,7 +421,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnTestAlarm.setOnClickListener {
+            // 1. Bunyikan nada dering dan aktifkan getaran perkakasan
             ChargingSessionManager.triggerAlarm(this)
+
+            // 2. Jalankan ujian suara pintar TTS
+            BatteryVoiceAlert.testVoice(this)
         }
     }
 

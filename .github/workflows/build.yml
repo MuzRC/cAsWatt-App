@@ -28,23 +28,44 @@ jobs:
       with:
         gradle-version: '8.7'
 
-    # Langkah chmod dibuang kerana guna gradle global yang dipasang di atas
     - name: Build Unsigned Release APK
       run: gradle assembleRelease --stacktrace
 
-    - name: Sign Android Release APK
-      uses: r0adkll/sign-android-release@v1
-      id: sign_app
-      with:
-        releaseDirectory: app/build/outputs/apk/release
-        signingKeyBase64: ${{ secrets.KEYSTORE_BASE64 }}
-        alias: ${{ secrets.KEY_ALIAS }}
-        keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
-        keyPassword: ${{ secrets.KEY_PASSWORD }}
+    - name: Sign Android Release APK (Direct apksigner)
+      run: |
+        # 1. Nyahsulit Secret Base64 menjadi fail keystore fizikal
+        echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > release.keystore
+        
+        # 2. Cari fail APK unsigned yang baru siap dibina
+        UNSIGNED_APK=$(find app/build/outputs/apk/release -name "*.apk" | head -n 1)
+        echo "Fail APK dijumpai: $UNSIGNED_APK"
+        
+        # 3. Kesan folder build-tools versi terkini secara automatik (34.0.0+)
+        BUILD_TOOLS_DIR=$(ls -d $ANDROID_HOME/build-tools/* | sort -V | tail -n 1)
+        echo "Menggunakan Build Tools: $BUILD_TOOLS_DIR"
+        
+        # 4. Selaras kata laluan keystore
+        STORE_PASS="${{ secrets.KEYSTORE_PASSWORD }}"
+        KEY_PASS="${{ secrets.KEY_PASSWORD }}"
+        if [ -z "$STORE_PASS" ]; then STORE_PASS="$KEY_PASS"; fi
+        if [ -z "$KEY_PASS" ]; then KEY_PASS="$STORE_PASS"; fi
+        
+        # 5. Tandatangani APK guna apksigner rasmi
+        $BUILD_TOOLS_DIR/apksigner sign \
+          --ks release.keystore \
+          --ks-key-alias "${{ secrets.KEY_ALIAS }}" \
+          --ks-pass "pass:$STORE_PASS" \
+          --key-pass "pass:$KEY_PASS" \
+          --out app/build/outputs/apk/release/CasWatt-Pro-Signed.apk \
+          "$UNSIGNED_APK"
+          
+        # 6. Sahkan ketulenan sign
+        $BUILD_TOOLS_DIR/apksigner verify app/build/outputs/apk/release/CasWatt-Pro-Signed.apk
+        echo "APK berjaya ditandatangani dan disahkan!"
 
     - name: Upload Signed Release APK ke Artifacts
       uses: actions/upload-artifact@v4
       with:
         name: CasWatt-Pro-Signed-Release-APK
-        path: ${{ steps.sign_app.outputs.signedReleaseFile }}
+        path: app/build/outputs/apk/release/CasWatt-Pro-Signed.apk
         retention-days: 14

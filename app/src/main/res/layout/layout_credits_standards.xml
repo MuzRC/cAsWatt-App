@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="14dp"
+    android:background="#1E222B"
+    android:orientation="vertical"
+    android:padding="18dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Piawaian &amp; Ketepatan Diagnostik Bateri"
+        android:textColor="#FFFFFF"
+        android:textSize="15sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:background="#263238"
+        android:paddingStart="8dp"
+        android:paddingTop="3dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="3dp"
+        android:text="✓ Disahkan Berfakta"
+        android:textColor="#FFB300"
+        android:textSize="11sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="Rujukan pengiraan kesihatan sel berteraskan standard elektrokimia Lithium-Ion (Li-Ion / Li-Po)."
+        android:textColor="#90A4AE"
+        android:textSize="11sp" />
+
+    <!-- Item 1: Coulomb Counting -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:background="#21262D"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🛡️ Bacaan Arus Langsung Kernel (Coulomb Counting)"
+            android:textColor="#00E676"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Mengekstrak data terus daripada BatteryManager perkakasan telefon tanpa menggunakan anggaran rawak atau formula palsu."
+            android:textColor="#CFD8DC"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+    <!-- Item 2: Kalibrasi SOH & Degradasi -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="#21262D"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="📊 Kalibrasi SOH &amp; Rintangan Dalaman (mΩ)"
+            android:textColor="#00E676"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Mengira kapasiti muatan sebenar (mAh) dan tahap penuaan sel melalui perbandingan voltan beban vs santai secara saintifik."
+            android:textColor="#CFD8DC"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+    <!-- Item 3: Pengecasan Tepu & Had Kritikal -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="#21262D"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="⚡ Pengecasan Tepu &amp; Perlindungan Voltan (> 4.45V)"
+            android:textColor="#00E676"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Mengesan fasa arus rendah 100% tepu sempurna serta mengawasi lonjakan voltan dan zon suhu panas berbahaya (> 45.0 °C)."
+            android:textColor="#CFD8DC"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+</LinearLayout>

@@ -43,7 +43,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Arus: 0 mA"
+                android:text="Arus Bersih: 0 mA"
                 android:textColor="#CFD8DC"
                 android:textSize="14sp" />
 
@@ -54,6 +54,73 @@
                 android:text="Voltan: 0.00 V"
                 android:textColor="#CFD8DC"
                 android:textSize="14sp" />
+
+            <!-- BARIS NISBAH ALIRAN KUASA (Boleh disentuh untuk tukar mA / Watt) -->
+            <LinearLayout
+                android:id="@+id/layout_power_ratio"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingVertical="2dp">
+
+                <TextView
+                    android:id="@+id/tv_ratio_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Aliran: "
+                    android:textColor="#90A4AE"
+                    android:textSize="13sp" />
+
+                <!-- 1. Arus / Kuasa Input Pengecas -->
+                <TextView
+                    android:id="@+id/tv_input_val"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="↓ 0 mA"
+                    android:textColor="#00E676"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <!-- 2. Pembahagi Statik -->
+                <TextView
+                    android:id="@+id/tv_ratio_divider"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" / "
+                    android:textColor="#78909C"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <!-- 3. Arus / Kuasa Beban Telefon -->
+                <TextView
+                    android:id="@+id/tv_drain_val"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="↑ 0 mA"
+                    android:textColor="#FFD54F"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <!-- 4. Lencana Kecekapan Bersih (%) atau Amaran Defisit -->
+                <TextView
+                    android:id="@+id/tv_efficiency_badge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:background="#263238"
+                    android:paddingHorizontal="6dp"
+                    android:paddingVertical="2dp"
+                    android:text="100%"
+                    android:textColor="#80D8FF"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/tv_thermal_throttle"
@@ -87,7 +154,6 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Cara 2: Pecahan Label Statik & Status Dinamik -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

@@ -55,7 +55,7 @@
                 android:textColor="#CFD8DC"
                 android:textSize="14sp" />
 
-            <!-- BARIS NISBAH ALIRAN KUASA (Boleh disentuh untuk tukar mA / Watt) -->
+            <!-- Baris Nisbah Aliran Kuasa (Sentuh untuk tukar unit mA / Watt) -->
             <LinearLayout
                 android:id="@+id/layout_power_ratio"
                 android:layout_width="match_parent"
@@ -76,7 +76,6 @@
                     android:textColor="#90A4AE"
                     android:textSize="13sp" />
 
-                <!-- 1. Arus / Kuasa Input Pengecas -->
                 <TextView
                     android:id="@+id/tv_input_val"
                     android:layout_width="wrap_content"
@@ -86,7 +85,6 @@
                     android:textSize="13sp"
                     android:textStyle="bold" />
 
-                <!-- 2. Pembahagi Statik -->
                 <TextView
                     android:id="@+id/tv_ratio_divider"
                     android:layout_width="wrap_content"
@@ -96,7 +94,6 @@
                     android:textSize="13sp"
                     android:textStyle="bold" />
 
-                <!-- 3. Arus / Kuasa Beban Telefon -->
                 <TextView
                     android:id="@+id/tv_drain_val"
                     android:layout_width="wrap_content"
@@ -106,7 +103,6 @@
                     android:textSize="13sp"
                     android:textStyle="bold" />
 
-                <!-- 4. Lencana Kecekapan Bersih (%) atau Amaran Defisit -->
                 <TextView
                     android:id="@+id/tv_efficiency_badge"
                     android:layout_width="wrap_content"
@@ -119,7 +115,6 @@
                     android:textColor="#80D8FF"
                     android:textSize="11sp"
                     android:textStyle="bold" />
-
             </LinearLayout>
 
             <TextView
@@ -284,40 +279,162 @@
                 android:text="Set Semula Sesi Ini" />
         </LinearLayout>
 
-        <!-- Maklumat Sistem Asas -->
+        <!-- Maklumat Sistem Asas (Boleh disentuh untuk pintasan Tetapan Bateri OS) -->
         <LinearLayout
+            android:id="@+id/layout_system_info"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:background="#1E222B"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
             android:orientation="vertical"
             android:padding="16dp">
 
-            <TextView
-                android:id="@+id/tv_main_level"
-                android:layout_width="wrap_content"
+            <!-- Tajuk Kad & Petunjuk Sentuh -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Peratus Bateri: --%"
-                android:textColor="#CFD8DC"
-                android:textSize="13sp" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/tv_main_temp"
-                android:layout_width="wrap_content"
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Maklumat Sistem Asas"
+                    android:textColor="#00E676"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tetapan ↗"
+                    android:textColor="#90A4AE"
+                    android:textSize="11sp" />
+            </LinearLayout>
+
+            <!-- 1. Peratus Bateri (Cara 2) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Peratus Bateri: "
+                    android:textColor="#CFD8DC"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/tv_main_level"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="--%"
+                    android:textColor="#00E676"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- 2. Suhu Bateri (Cara 2) -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Suhu Bateri: -- °C"
-                android:textColor="#CFD8DC"
-                android:textSize="13sp" />
+                android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/tv_main_plug"
-                android:layout_width="wrap_content"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Suhu Bateri: "
+                    android:textColor="#CFD8DC"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/tv_main_temp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="-- °C"
+                    android:textColor="#FFD54F"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- 3. Sumber Cas (Cara 2) -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Sumber Cas: --"
-                android:textColor="#CFD8DC"
-                android:textSize="13sp" />
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Sumber Cas: "
+                    android:textColor="#CFD8DC"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/tv_main_plug"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="--"
+                    android:textColor="#29B6F6"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- 4. CIRI BAHARU: Baki Hayat Nyahcas (Cara 2) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Baki Masa Bertahan: "
+                    android:textColor="#CFD8DC"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/tv_main_runtime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Mengira..."
+                    android:textColor="#80D8FF"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- 5. CIRI BAHARU: Teknologi Kimia Sel (Cara 2) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Teknologi Sel: "
+                    android:textColor="#CFD8DC"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/tv_main_tech"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Li-ion"
+                    android:textColor="#ECEFF1"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
         </LinearLayout>
 
     </LinearLayout>

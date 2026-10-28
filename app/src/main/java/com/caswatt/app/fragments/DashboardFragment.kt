@@ -23,15 +23,27 @@ import kotlin.math.abs
 
 class DashboardFragment : Fragment() {
 
+    // Status Utama
     private lateinit var tvStatus: TextView
     private lateinit var tvWatt: TextView
     private lateinit var tvCurrent: TextView
     private lateinit var tvVoltage: TextView
     private lateinit var tvThermalThrottle: TextView
     private lateinit var tvTrickleStatus: TextView
+
+    // Nisbah Aliran Kuasa (Ratio Bar)
+    private lateinit var layoutPowerRatio: LinearLayout
+    private lateinit var tvInputVal: TextView
+    private lateinit var tvRatioDivider: TextView
+    private lateinit var tvDrainVal: TextView
+    private lateinit var tvEfficiencyBadge: TextView
+
+    // Kualiti Kabel & Smart ETA
     private lateinit var tvCableQuality: TextView
     private lateinit var tvSmartEta80: TextView
     private lateinit var tvSmartEta100: TextView
+
+    // Kad Statistik Sesi Semasa (Gabungan Tempoh & Tenaga)
     private lateinit var tvDischargeDuration: TextView
     private lateinit var tvDischargeSub: TextView
     private lateinit var tvPeakWatt: TextView
@@ -40,14 +52,7 @@ class DashboardFragment : Fragment() {
     private lateinit var tvCostMyr: TextView
     private lateinit var btnResetSession: Button
 
-    // Komponen Nisbah Aliran Kuasa (Ratio Bar)
-    private lateinit var layoutPowerRatio: LinearLayout
-    private lateinit var tvInputVal: TextView
-    private lateinit var tvRatioDivider: TextView
-    private lateinit var tvDrainVal: TextView
-    private lateinit var tvEfficiencyBadge: TextView
-
-    // Komponen Maklumat Sistem Asas (Kad Bawah)
+    // Kad Maklumat Sistem Asas (Interaktif)
     private lateinit var layoutSystemInfo: LinearLayout
     private lateinit var tvLevel: TextView
     private lateinit var tvTemp: TextView
@@ -55,7 +60,7 @@ class DashboardFragment : Fragment() {
     private lateinit var tvRuntime: TextView
     private lateinit var tvTech: TextView
 
-    // Status Mod Paparan & Intent
+    // Status Mod Paparan & Simpanan Intent
     private var isWattMode: Boolean = false
     private var lastKnownIntent: Intent? = null
 
@@ -82,22 +87,13 @@ class DashboardFragment : Fragment() {
     }
 
     private fun initViews(view: View) {
+        // Bind Status Utama
         tvStatus = view.findViewById(R.id.tv_main_status)
         tvWatt = view.findViewById(R.id.tv_main_watt)
         tvCurrent = view.findViewById(R.id.tv_main_current)
         tvVoltage = view.findViewById(R.id.tv_main_voltage)
         tvThermalThrottle = view.findViewById(R.id.tv_thermal_throttle)
         tvTrickleStatus = view.findViewById(R.id.tv_trickle_status)
-        tvCableQuality = view.findViewById(R.id.tv_cable_quality)
-        tvSmartEta80 = view.findViewById(R.id.tv_smart_eta_80)
-        tvSmartEta100 = view.findViewById(R.id.tv_smart_eta_100)
-        tvDischargeDuration = view.findViewById(R.id.tv_discharge_duration)
-        tvDischargeSub = view.findViewById(R.id.tv_discharge_sub)
-        tvPeakWatt = view.findViewById(R.id.tv_peak_watt)
-        tvTotalMah = view.findViewById(R.id.tv_total_mah)
-        tvEnergyWh = view.findViewById(R.id.tv_energy_wh)
-        tvCostMyr = view.findViewById(R.id.tv_cost_myr)
-        btnResetSession = view.findViewById(R.id.btn_reset_session)
 
         // Bind Baris Aliran Nisbah Kuasa
         layoutPowerRatio = view.findViewById(R.id.layout_power_ratio)
@@ -105,6 +101,20 @@ class DashboardFragment : Fragment() {
         tvRatioDivider = view.findViewById(R.id.tv_ratio_divider)
         tvDrainVal = view.findViewById(R.id.tv_drain_val)
         tvEfficiencyBadge = view.findViewById(R.id.tv_efficiency_badge)
+
+        // Bind Kualiti Kabel & Smart ETA
+        tvCableQuality = view.findViewById(R.id.tv_cable_quality)
+        tvSmartEta80 = view.findViewById(R.id.tv_smart_eta_80)
+        tvSmartEta100 = view.findViewById(R.id.tv_smart_eta_100)
+
+        // Bind Kad Statistik Sesi Semasa
+        tvDischargeDuration = view.findViewById(R.id.tv_discharge_duration)
+        tvDischargeSub = view.findViewById(R.id.tv_discharge_sub)
+        tvPeakWatt = view.findViewById(R.id.tv_peak_watt)
+        tvTotalMah = view.findViewById(R.id.tv_total_mah)
+        tvEnergyWh = view.findViewById(R.id.tv_energy_wh)
+        tvCostMyr = view.findViewById(R.id.tv_cost_myr)
+        btnResetSession = view.findViewById(R.id.btn_reset_session)
 
         // Bind Kad Maklumat Sistem Asas
         layoutSystemInfo = view.findViewById(R.id.layout_system_info)
@@ -116,6 +126,7 @@ class DashboardFragment : Fragment() {
     }
 
     private fun setupListeners() {
+        // Butang Reset Sesi Kompak
         btnResetSession.setOnClickListener {
             val ctx = context ?: return@setOnClickListener
             val intent = try {
@@ -139,7 +150,7 @@ class DashboardFragment : Fragment() {
             tvTotalMah.text = "0 mAh"
             tvEnergyWh.text = "0.00 Wh"
             tvCostMyr.text = "RM 0.00"
-            Toast.makeText(ctx, "Meter sesi berjaya diset semula!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(ctx, "Sesi berjaya diset semula!", Toast.LENGTH_SHORT).show()
         }
 
         // Sentuh Baris Aliran untuk Bertukar Unit (mA <-> Watt)
@@ -150,7 +161,7 @@ class DashboardFragment : Fragment() {
             lastKnownIntent?.let { updateBatteryInfo(it) }
         }
 
-        // Sentuh Kad Maklumat Sistem untuk Pintasan Tetapan Bateri Android
+        // Sentuh Kad Maklumat Sistem untuk Pintasan Terus ke Tetapan Bateri Android
         layoutSystemInfo.setOnClickListener {
             val ctx = context ?: return@setOnClickListener
             try {
@@ -234,7 +245,7 @@ class DashboardFragment : Fragment() {
             else -> "Menggunakan Bateri"
         }
 
-        // Paparan Status Cas & Voltan Utama
+        // Status Cas & Voltan Utama
         tvStatus.text = if (isCharging) "SEDANG DICAS ⚡" else "TIDAK DICAS (NYAHCAS)"
         tvStatus.setTextColor(if (isCharging) 0xFF00E676.toInt() else 0xFFFFAB00.toInt())
         tvWatt.text = String.format(Locale.US, "%.2f W", watts)
@@ -307,75 +318,11 @@ class DashboardFragment : Fragment() {
             tvEfficiencyBadge.setTextColor(0xFF90A4AE.toInt())
         }
 
-        // =========================================================================
-        // 2. KAD MAKLUMAT SISTEM ASAS (CARA 2 + CIRI BAHARU)
-        // =========================================================================
-        
-        // A. Peratus Bateri
-        tvLevel.text = "$pct%"
-        val levelColor = when {
-            pct <= 20 -> 0xFFFF5252.toInt() // Merah amaran zon kritikal
-            pct <= 80 -> 0xFF00E676.toInt() // Hijau zon selamat ideal
-            else -> 0xFFFFD54F.toInt()      // Kuning zon voltan tinggi
-        }
-        tvLevel.setTextColor(levelColor)
-
-        // B. Suhu Bateri
-        tvTemp.text = String.format(Locale.US, "%.1f °C", tempC)
-        val tempColor = when {
-            tempC >= 40.0 -> 0xFFFF5252.toInt() // Merah: Panas
-            tempC >= 35.0 -> 0xFFFFD54F.toInt() // Kuning: Suam
-            else -> 0xFF00E676.toInt()          // Hijau: Sejuk
-        }
-        tvTemp.setTextColor(tempColor)
-
-        // C. Sumber Cas
-        tvPlug.text = plugType
-        val plugColor = when (plugged) {
-            BatteryManager.BATTERY_PLUGGED_AC -> 0xFF00E676.toInt()      // Hijau AC
-            BatteryManager.BATTERY_PLUGGED_USB,
-            BatteryManager.BATTERY_PLUGGED_WIRELESS -> 0xFFFFD54F.toInt() // Kuning USB/Wireless
-            else -> 0xFF29B6F6.toInt()                                  // Biru Bateri
-        }
-        tvPlug.setTextColor(plugColor)
-
-        // D. Baki Hayat Nyahcas (Runtime ETA)
-        if (isCharging) {
-            tvRuntime.text = "Sedang Dicas ⚡"
-            tvRuntime.setTextColor(0xFF00E676.toInt())
-        } else {
-            val drainRate = if (currentMa > 50) currentMa else lastDischargeMa
-            if (drainRate > 50 && pct > 0) {
-                // Anggaran berasaskan saiz bateri 5000 mAh
-                val remainingCapacityMah = (pct / 100.0) * 5000.0
-                val hoursRemaining = remainingCapacityMah / drainRate.toDouble()
-                val hours = hoursRemaining.toInt()
-                val minutes = ((hoursRemaining - hours) * 60).toInt()
-
-                tvRuntime.text = String.format(Locale.US, "~%dj %02dm lagi", hours, minutes)
-                val runtimeColor = when {
-                    hoursRemaining >= 5.0 -> 0xFF00E676.toInt() // Hijau: Tahan lama
-                    hoursRemaining >= 2.0 -> 0xFFFFD54F.toInt() // Kuning: Sederhana
-                    else -> 0xFFFF5252.toInt()                  // Merah: Hampir habis
-                }
-                tvRuntime.setTextColor(runtimeColor)
-            } else {
-                tvRuntime.text = "Mengira keluk..."
-                tvRuntime.setTextColor(0xFF90A4AE.toInt())
-            }
-        }
-
-        // E. Teknologi Kimia Sel Bateri
-        val tech = intent.getStringExtra(BatteryManager.EXTRA_TECHNOLOGY)
-        tvTech.text = if (!tech.isNullOrBlank()) tech else "Li-ion"
-        tvTech.setTextColor(0xFFECEFF1.toInt())
-
-        // =========================================================================
-        // 3. BADGES, KUALITI KABEL, METRIK SESI & DURASI
-        // =========================================================================
+        // Live Badges
         tvThermalThrottle.visibility = if (isCharging && ChargingSessionManager.isThermalThrottling) View.VISIBLE else View.GONE
         tvTrickleStatus.visibility = if (isCharging && ChargingSessionManager.isTrickleCharging) View.VISIBLE else View.GONE
 
+        // Kualiti Kabel & Smart ETA
         if (isCharging) {
             val quality = ChargingSessionManager.cableQuality
             tvCableQuality.text = quality
@@ -408,21 +355,79 @@ class DashboardFragment : Fragment() {
             tvSmartEta100.text = "⏱️ Anggaran ke 100%: Menggunakan kuasa bateri"
         }
 
-        tvPeakWatt.text = String.format(Locale.US, "%.2f W", ChargingSessionManager.peakWatt)
-        tvTotalMah.text = String.format(Locale.US, "%.0f mAh", ChargingSessionManager.totalMah)
-        tvEnergyWh.text = String.format(Locale.US, "%.2f Wh", ChargingSessionManager.energyWh)
-        tvCostMyr.text = String.format(Locale.US, "RM %.4f", ChargingSessionManager.costMyr)
-
+        // =========================================================================
+        // 2. KAD STATISTIK SESI SEMASA (GABUNGAN TEMPOH & TENAGA)
+        // =========================================================================
         if (isCharging) {
             tvDischargeDuration.text = "Sedang Dicas ⚡"
             tvDischargeDuration.setTextColor(0xFF00E676.toInt())
-            tvDischargeSub.text = "Auto-reset watt, mAh & Wh aktif."
+            tvDischargeSub.text = "Bateri: $pct% (Sesi cas aktif)"
+            tvTotalMah.text = String.format(Locale.US, "+%.0f mAh", ChargingSessionManager.totalMah)
+            tvTotalMah.setTextColor(0xFF00E676.toInt())
         } else {
             val elapsed = System.currentTimeMillis() - ChargingSessionManager.lastUnplugTimestamp
             tvDischargeDuration.text = ChargingSessionManager.formatDuration(elapsed)
             tvDischargeDuration.setTextColor(0xFF29B6F6.toInt())
-            val dropPct = (ChargingSessionManager.lastUnplugLevel - pct).coerceAtLeast(0)
-            tvDischargeSub.text = "Bateri: $pct% (Turun ${dropPct}% dari ${ChargingSessionManager.lastUnplugLevel}%)"
+            val startLevel = ChargingSessionManager.lastUnplugLevel
+            val dropPct = (startLevel - pct).coerceAtLeast(0)
+            tvDischargeSub.text = "Bateri: ${startLevel}% ➔ ${pct}% (-${dropPct}%)"
+            tvTotalMah.text = String.format(Locale.US, "%.0f mAh", ChargingSessionManager.totalMah)
+            tvTotalMah.setTextColor(0xFF80D8FF.toInt())
         }
+
+        tvPeakWatt.text = String.format(Locale.US, "%.2f W", ChargingSessionManager.peakWatt)
+        tvEnergyWh.text = String.format(Locale.US, "%.2f Wh", ChargingSessionManager.energyWh)
+
+        // =========================================================================
+        // 3. KAD MAKLUMAT SISTEM ASAS (PERKAKASAN & RUNTIME)
+        // =========================================================================
+        // Suhu Bateri
+        tvTemp.text = String.format(Locale.US, "%.1f °C", tempC)
+        val tempColor = when {
+            tempC >= 40.0 -> 0xFFFF5252.toInt() // Merah: Panas
+            tempC >= 35.0 -> 0xFFFFD54F.toInt() // Kuning: Suam
+            else -> 0xFF00E676.toInt()          // Hijau: Sejuk
+        }
+        tvTemp.setTextColor(tempColor)
+
+        // Sumber Cas
+        tvPlug.text = plugType
+        val plugColor = when (plugged) {
+            BatteryManager.BATTERY_PLUGGED_AC -> 0xFF00E676.toInt()
+            BatteryManager.BATTERY_PLUGGED_USB,
+            BatteryManager.BATTERY_PLUGGED_WIRELESS -> 0xFFFFD54F.toInt()
+            else -> 0xFF29B6F6.toInt()
+        }
+        tvPlug.setTextColor(plugColor)
+
+        // Baki Hayat Nyahcas (Runtime ETA)
+        if (isCharging) {
+            tvRuntime.text = "Sedang Dicas ⚡"
+            tvRuntime.setTextColor(0xFF00E676.toInt())
+        } else {
+            val drainRate = if (currentMa > 50) currentMa else lastDischargeMa
+            if (drainRate > 50 && pct > 0) {
+                val remainingCapacityMah = (pct / 100.0) * 5000.0
+                val hoursRemaining = remainingCapacityMah / drainRate.toDouble()
+                val hours = hoursRemaining.toInt()
+                val minutes = ((hoursRemaining - hours) * 60).toInt()
+
+                tvRuntime.text = String.format(Locale.US, "~%dj %02dm lagi", hours, minutes)
+                val runtimeColor = when {
+                    hoursRemaining >= 5.0 -> 0xFF00E676.toInt() // Hijau: Tahan lama
+                    hoursRemaining >= 2.0 -> 0xFFFFD54F.toInt() // Kuning: Sederhana
+                    else -> 0xFFFF5252.toInt()                  // Merah: Segera cas
+                }
+                tvRuntime.setTextColor(runtimeColor)
+            } else {
+                tvRuntime.text = "Mengira keluk..."
+                tvRuntime.setTextColor(0xFF90A4AE.toInt())
+            }
+        }
+
+        // Teknologi Kimia Sel Bateri
+        val tech = intent.getStringExtra(BatteryManager.EXTRA_TECHNOLOGY)
+        tvTech.text = if (!tech.isNullOrBlank()) tech else "Li-ion"
+        tvTech.setTextColor(0xFFECEFF1.toInt())
     }
 }

@@ -6,6 +6,8 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
@@ -63,6 +65,15 @@ class DashboardFragment : Fragment() {
     // Status Mod Paparan & Simpanan Intent
     private var isWattMode: Boolean = false
     private var lastKnownIntent: Intent? = null
+
+    // Detik 1-Saat untuk Kemas Kini Masa Nyata
+    private val tickerHandler = Handler(Looper.getMainLooper())
+    private val tickerRunnable = object : Runnable {
+        override fun run() {
+            lastKnownIntent?.let { updateBatteryInfo(it) }
+            tickerHandler.postDelayed(this, 1000L)
+        }
+    }
 
     companion object {
         // Ingatan Arus Nyahcas Terakhir (Beban telefon sebelum dicucuk - Pilihan A)
@@ -126,7 +137,6 @@ class DashboardFragment : Fragment() {
     }
 
     private fun setupListeners() {
-        // Butang Reset Sesi Kompak
         btnResetSession.setOnClickListener {
             val ctx = context ?: return@setOnClickListener
             val intent = try {
@@ -147,7 +157,7 @@ class DashboardFragment : Fragment() {
             }
 
             tvPeakWatt.text = "0.00 W"
-            tvTotalMah.text = "0 mAh"
+            tvTotalMah.text = "+0 mAh"
             tvEnergyWh.text = "0.00 Wh"
             tvCostMyr.text = "RM 0.00"
             Toast.makeText(ctx, "Sesi berjaya diset semula!", Toast.LENGTH_SHORT).show()
@@ -161,7 +171,7 @@ class DashboardFragment : Fragment() {
             lastKnownIntent?.let { updateBatteryInfo(it) }
         }
 
-        // Sentuh Kad Maklumat Sistem untuk Pintasan Terus ke Tetapan Bateri Android
+        // Sentuh Kad Maklumat Sistem untuk Pintasan Tetapan Bateri Android
         layoutSystemInfo.setOnClickListener {
             val ctx = context ?: return@setOnClickListener
             try {
@@ -198,10 +208,16 @@ class DashboardFragment : Fragment() {
             filter,
             ContextCompat.RECEIVER_NOT_EXPORTED
         )
+
+        // Mulakan detik 1-saat semasa pengguna melihat dashboard
+        tickerHandler.removeCallbacks(tickerRunnable)
+        tickerHandler.postDelayed(tickerRunnable, 1000L)
     }
 
     override fun onPause() {
         super.onPause()
+        // Hentikan detik untuk jimat bateri apabila pengguna keluar dari dashboard
+        tickerHandler.removeCallbacks(tickerRunnable)
         try {
             context?.unregisterReceiver(batteryReceiver)
         } catch (_: Exception) {}
@@ -223,8 +239,6 @@ class DashboardFragment : Fragment() {
         val isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
                 status == BatteryManager.BATTERY_STATUS_FULL
 
-        ChargingSessionManager.checkStateTransition(ctx, isCharging, pct)
-
         val currentNowMicro = batteryManager?.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW) ?: 0
         val currentMa = if (abs(currentNowMicro) > 50000) {
             abs(currentNowMicro) / 1000
@@ -236,6 +250,20 @@ class DashboardFragment : Fragment() {
 
         val tempTenths = intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0)
         val tempC = tempTenths / 10.0
+        val healthCode = intent.getIntExtra(BatteryManager.EXTRA_HEALTH, BatteryManager.BATTERY_HEALTH_UNKNOWN)
+
+        // =========================================================================
+        // HUBUNGAN UTAMA: HANTAR SAMPEL BATERI TERUS KE ChargingSessionManager!
+        // =========================================================================
+        ChargingSessionManager.recordSample(
+            context = ctx,
+            watt = watts,
+            currentMa = currentMa,
+            tempC = tempC,
+            levelPct = pct,
+            isCharging = isCharging,
+            healthCode = healthCode
+        )
 
         val plugged = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1)
         val plugType = when (plugged) {
@@ -322,7 +350,9 @@ class DashboardFragment : Fragment() {
         tvThermalThrottle.visibility = if (isCharging && ChargingSessionManager.isThermalThrottling) View.VISIBLE else View.GONE
         tvTrickleStatus.visibility = if (isCharging && ChargingSessionManager.isTrickleCharging) View.VISIBLE else View.GONE
 
-        // Kualiti Kabel & Smart ETA
+        // =========================================================================
+        // KUALITI KABEL & SMART ETA (DIBACA TERUS DARI MANAGER)
+        // =========================================================================
         if (isCharging) {
             val quality = ChargingSessionManager.cableQuality
             tvCableQuality.text = quality
@@ -356,12 +386,15 @@ class DashboardFragment : Fragment() {
         }
 
         // =========================================================================
-        // 2. KAD STATISTIK SESI SEMASA (GABUNGAN TEMPOH & TENAGA)
+        // 2. KAD STATISTIK SESI SEMASA (TEMPOH MASA & TENAGA)
         // =========================================================================
         if (isCharging) {
-            tvDischargeDuration.text = "Sedang Dicas ⚡"
+            val elapsed = System.currentTimeMillis() - ChargingSessionManager.sessionStartTime
+            tvDischargeDuration.text = "${ChargingSessionManager.formatDuration(elapsed)} ⚡"
             tvDischargeDuration.setTextColor(0xFF00E676.toInt())
-            tvDischargeSub.text = "Bateri: $pct% (Sesi cas aktif)"
+            val startLevel = ChargingSessionManager.sessionStartLevel
+            val gainPct = (pct - startLevel).coerceAtLeast(0)
+            tvDischargeSub.text = "Bateri: ${startLevel}% ➔ ${pct}% (+${gainPct}%)"
             tvTotalMah.text = String.format(Locale.US, "+%.0f mAh", ChargingSessionManager.totalMah)
             tvTotalMah.setTextColor(0xFF00E676.toInt())
         } else {
@@ -416,18 +449,4 @@ class DashboardFragment : Fragment() {
                 val runtimeColor = when {
                     hoursRemaining >= 5.0 -> 0xFF00E676.toInt() // Hijau: Tahan lama
                     hoursRemaining >= 2.0 -> 0xFFFFD54F.toInt() // Kuning: Sederhana
-                    else -> 0xFFFF5252.toInt()                  // Merah: Segera cas
-                }
-                tvRuntime.setTextColor(runtimeColor)
-            } else {
-                tvRuntime.text = "Mengira keluk..."
-                tvRuntime.setTextColor(0xFF90A4AE.toInt())
-            }
-        }
-
-        // Teknologi Kimia Sel Bateri
-        val tech = intent.getStringExtra(BatteryManager.EXTRA_TECHNOLOGY)
-        tvTech.text = if (!tech.isNullOrBlank()) tech else "Li-ion"
-        tvTech.setTextColor(0xFFECEFF1.toInt())
-    }
-}
+                    else -> 0xFFFF5252.toInt()                  //

@@ -11,6 +11,7 @@
         android:orientation="vertical"
         android:padding="16dp">
 
+        <!-- 1. KAD UTAMA KESIHATAN BATERI -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -21,58 +22,192 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Status Kesihatan Perkakasan OS:"
+                android:text="Status Kesihatan Bateri (SOH)"
                 android:textColor="#90A4AE"
                 android:textSize="13sp" />
 
-            <!-- Kad Status Kesihatan Boleh Ditekan -->
-            <TextView
-                android:id="@+id/tv_health_condition"
+            <!-- Baris Peratus & Lencana Servis -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tv_health_percentage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="--%"
+                    android:textColor="#00E676"
+                    android:textSize="32sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_health_service_badge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:background="#21262D"
+                    android:paddingStart="8dp"
+                    android:paddingTop="4dp"
+                    android:paddingEnd="8dp"
+                    android:paddingBottom="4dp"
+                    android:text="Mengira..."
+                    android:textColor="#CFD8DC"
+                    android:textSize="11sp" />
+            </LinearLayout>
+
+            <!-- Bar Kemajuan Visual Kesihatan -->
+            <ProgressBar
+                android:id="@+id/pb_health_bar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="10dp"
+                android:layout_marginTop="10dp"
+                android:max="100"
+                android:progress="0"
+                android:progressTint="#00E676" />
+
+            <!-- Baris Kapasiti & Butang Ubah -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:background="?attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:lineSpacingExtra="4dp"
-                android:text="Mengira Kesihatan..."
-                android:textSize="16sp" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tv_health_capacity_detail"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Kapasiti: ---- mAh / ---- mAh"
+                    android:textColor="#CFD8DC"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/btn_edit_capacity"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="4dp"
+                    android:text="Ubah ✏️"
+                    android:textColor="#80D8FF"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="10dp"
+                android:background="#263238" />
+
+            <!-- Tahap Keyakinan Kalibrasi -->
+            <TextView
+                android:id="@+id/tv_health_confidence"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Keyakinan Kalibrasi: Mengumpul sampel..."
+                android:textColor="#FFD54F"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <!-- 2. KAD PENUAAN SEL & DIAGNOSTIK ELEKTRIK -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="#1E222B"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Diagnostik Penuaan &amp; Sel"
+                android:textColor="#00E676"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_health_wear_loss"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="• Kehilangan Kapasiti: -- mAh (--%)"
+                android:textColor="#CFD8DC"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/tv_health_resistance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="• Rintangan Dalaman Sel: -- mΩ"
+                android:textColor="#CFD8DC"
+                android:textSize="13sp" />
 
             <TextView
                 android:id="@+id/tv_health_cycles"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="Anggaran Kitaran: 0.0 kitaran"
+                android:layout_marginTop="6dp"
+                android:text="• Kitaran Dikesan: 0.0 kitaran"
                 android:textColor="#CFD8DC"
-                android:textSize="14sp" />
+                android:textSize="13sp" />
 
             <TextView
                 android:id="@+id/tv_health_cumulative"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Jumlah Kumulatif Cas: 0% cas"
+                android:layout_marginTop="6dp"
+                android:text="• Jumlah Kumulatif Cas: 0% cas"
                 android:textColor="#90A4AE"
-                android:textSize="13sp" />
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <!-- 3. KAD NASIHAT SERVIS & TINDAKAN -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="#1E222B"
+            android:orientation="vertical"
+            android:padding="16dp">
 
             <TextView
-                android:id="@+id/tv_health_voltage_detail"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="Voltan Sel Semasa: 0.00 V"
-                android:textColor="#CFD8DC"
-                android:textSize="13sp" />
+                android:text="Nasihat Klinikal &amp; Penyelenggaraan"
+                android:textColor="#00E676"
+                android:textSize="14sp"
+                android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/tv_health_temp_detail"
+                android:id="@+id/tv_health_advice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Suhu Sel: 0.0 °C"
-                android:textColor="#CFD8DC"
-                android:textSize="13sp" />
+                android:layout_marginTop="8dp"
+                android:lineSpacingExtra="3dp"
+                android:text="Menilai corak kesihatan bateri anda..."
+                android:textColor="#ECEFF1"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/btn_reset_battery"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:minHeight="38dp"
+                android:backgroundTint="#2D1517"
+                android:text="Pasang Bateri Baharu (Reset Kalibrasi)"
+                android:textAllCaps="false"
+                android:textColor="#FF5252"
+                android:textSize="12sp" />
         </LinearLayout>
 
     </LinearLayout>

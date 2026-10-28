@@ -11,7 +11,7 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Ringkasan Harian -->
+        <!-- 1. KAD RINGKASAN HARIAN -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -51,10 +51,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:text="Eksport Rekod ke CSV" />
+                android:minHeight="40dp"
+                android:backgroundTint="#21262D"
+                android:textColor="#00E676"
+                android:textSize="12sp"
+                android:textAllCaps="false"
+                android:text="📄 Eksport Rekod ke CSV" />
         </LinearLayout>
 
-        <!-- Graf Keluk Cas -->
+        <!-- 2. KAD GRAF KELUK PENGECASAN SEMASA -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -63,29 +68,70 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <TextView
+            <!-- Baris Tajuk & Butang Padam Graf Kompak -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Graf Keluk Pengecasan Semasa"
+                    android:textColor="#00E676"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/btn_clear_graph"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minHeight="32dp"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp"
+                    android:backgroundTint="#2D1517"
+                    android:textColor="#FF5252"
+                    android:textSize="11sp"
+                    android:textAllCaps="false"
+                    android:text="Kosongkan" />
+            </LinearLayout>
+
+            <!-- Petunjuk Warna Graf (Legend) -->
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Graf Keluk Pengecasan Semasa"
-                android:textColor="#00E676"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                android:layout_marginTop="6dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="● Kuasa (Watt)"
+                    android:textColor="#00E676"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+                    android:text="● Suhu (°C)"
+                    android:textColor="#FFAB00"
+                    android:textSize="11sp" />
+            </LinearLayout>
 
             <com.caswatt.app.ChargingChartView
                 android:id="@+id/charging_chart_view"
                 android:layout_width="match_parent"
                 android:layout_height="220dp"
-                android:layout_marginTop="8dp" />
-
-            <Button
-                android:id="@+id/btn_clear_graph"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Kosongkan Graf" />
+                android:layout_marginTop="10dp" />
         </LinearLayout>
 
-        <!-- Senarai Sesi Cas -->
+        <!-- 3. KAD SEJARAH SESI CAS TERPERINCI -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -114,11 +160,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                android:minHeight="38dp"
+                android:backgroundTint="#21262D"
+                android:textColor="#80D8FF"
+                android:textSize="12sp"
+                android:textAllCaps="false"
                 android:text="Tampilkan Lebih Banyak ▼"
                 android:visibility="gone" />
         </LinearLayout>
 
-        <!-- Senarai Rekod Harian -->
+        <!-- 4. KAD ANALITIK TREND & LOG HARIAN -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -130,7 +181,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Log Harian"
+                android:text="Analitik Trend &amp; Log Harian"
                 android:textColor="#00E676"
                 android:textSize="14sp"
                 android:textStyle="bold" />

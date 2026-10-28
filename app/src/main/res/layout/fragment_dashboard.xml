@@ -78,7 +78,7 @@
                 android:visibility="gone" />
         </LinearLayout>
 
-        <!-- Kualiti Kabel & Smart ETA -->
+        <!-- Kualiti Kabel dan Smart ETA -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -87,13 +87,28 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <TextView
-                android:id="@+id/tv_cable_quality"
-                android:layout_width="wrap_content"
+            <!-- Cara 2: Pecahan Label Statik & Status Dinamik -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Kualiti Kabel: Memeriksa..."
-                android:textColor="#CFD8DC"
-                android:textSize="14sp" />
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Kualiti Kabel: "
+                    android:textColor="#CFD8DC"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/tv_cable_quality"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Mengukur..."
+                    android:textColor="#90A4AE"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/tv_smart_eta_80"
@@ -142,7 +157,7 @@
                 android:textSize="12sp" />
         </LinearLayout>
 
-        <!-- Metrik Kuasa & Tenaga Sesi -->
+        <!-- Metrik Kuasa dan Tenaga Sesi -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

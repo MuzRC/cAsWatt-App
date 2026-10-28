@@ -3,7 +3,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#121318"
-    android:fillViewport="true">
+    android:clipToPadding="false"
+    android:fillViewport="true"
+    android:paddingBottom="36dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -11,7 +13,7 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Status Cas Utama -->
+        <!-- Kad 1: Status Cas Utama -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -140,7 +142,7 @@
                 android:visibility="gone" />
         </LinearLayout>
 
-        <!-- Kualiti Kabel dan Smart ETA -->
+        <!-- Kad 2: Kualiti Kabel dan Smart ETA -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -190,7 +192,7 @@
                 android:textSize="13sp" />
         </LinearLayout>
 
-        <!-- Tempoh Nyahcas -->
+        <!-- Kad 3: Statistik Sesi Semasa (Penyatuan Tempoh & Tenaga) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -199,99 +201,155 @@
             android:orientation="vertical"
             android:padding="16dp">
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Statistik Sesi Semasa"
+                    android:textColor="#00E676"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <!-- Butang Reset Kompak di Penjuru Atas -->
+                <Button
+                    android:id="@+id/btn_reset_session"
+                    style="@style/Widget.AppCompat.Button.Borderless"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:minHeight="0dp"
+                    android:minWidth="0dp"
+                    android:paddingHorizontal="10dp"
+                    android:text="Set Semula"
+                    android:textColor="#29B6F6"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Tempoh Masa Sesi -->
             <TextView
                 android:id="@+id/tv_discharge_duration"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
                 android:text="--:--:--"
                 android:textColor="#29B6F6"
-                android:textSize="18sp"
+                android:textSize="22sp"
                 android:textStyle="bold" />
 
+            <!-- Perubahan Bateri -->
             <TextView
                 android:id="@+id/tv_discharge_sub"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="2dp"
                 android:text="Bateri: --%"
                 android:textColor="#90A4AE"
-                android:textSize="12sp" />
-        </LinearLayout>
-
-        <!-- Metrik Kuasa dan Tenaga Sesi -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:background="#1E222B"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Tenaga Sesi Semasa"
-                android:textColor="#00E676"
-                android:textSize="14sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tv_peak_watt"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:text="0.00 W"
-                android:textColor="#CFD8DC"
                 android:textSize="13sp" />
 
-            <TextView
-                android:id="@+id/tv_total_mah"
-                android:layout_width="wrap_content"
+            <!-- Pembahagi Garisan Nipis -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="10dp"
+                android:background="#2C323D" />
+
+            <!-- Watt Puncak Sesi -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Watt Puncak: "
+                    android:textColor="#CFD8DC"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/tv_peak_watt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0.00 W"
+                    android:textColor="#FFFFFF"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Tenaga Masuk / Guna -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="0 mAh"
-                android:textColor="#CFD8DC"
-                android:textSize="13sp" />
+                android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/tv_energy_wh"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="0.00 Wh"
-                android:textColor="#CFD8DC"
-                android:textSize="13sp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tenaga Sesi: "
+                    android:textColor="#CFD8DC"
+                    android:textSize="13sp" />
 
+                <TextView
+                    android:id="@+id/tv_total_mah"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0 mAh"
+                    android:textColor="#00E676"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" ("
+                    android:textColor="#78909C"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/tv_energy_wh"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0.00 Wh"
+                    android:textColor="#80D8FF"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=")"
+                    android:textColor="#78909C"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <!-- Disorokkan untuk elak ralat sebelum kod Kotlin dikemas kini -->
             <TextView
                 android:id="@+id/tv_cost_myr"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="RM 0.00"
-                android:textColor="#CFD8DC"
-                android:textSize="13sp" />
-
-            <Button
-                android:id="@+id/btn_reset_session"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="Set Semula Sesi Ini" />
+                android:visibility="gone" />
         </LinearLayout>
 
-        <!-- Maklumat Sistem Asas (Boleh disentuh untuk pintasan Tetapan Bateri OS) -->
+        <!-- Kad 4: Maklumat Sistem Asas (Latar gelap pulih & boleh disentuh) -->
         <LinearLayout
             android:id="@+id/layout_system_info"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:background="?attr/selectableItemBackground"
+            android:background="#1E222B"
             android:clickable="true"
             android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Tajuk Kad & Petunjuk Sentuh -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -315,35 +373,18 @@
                     android:textSize="11sp" />
             </LinearLayout>
 
-            <!-- 1. Peratus Bateri (Cara 2) -->
+            <!-- Disorokkan dari kad ini untuk elak pertindihan data -->
+            <TextView
+                android:id="@+id/tv_main_level"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+
+            <!-- Suhu Bateri -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Peratus Bateri: "
-                    android:textColor="#CFD8DC"
-                    android:textSize="13sp" />
-
-                <TextView
-                    android:id="@+id/tv_main_level"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="--%"
-                    android:textColor="#00E676"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <!-- 2. Suhu Bateri (Cara 2) -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
                 android:orientation="horizontal">
 
                 <TextView
@@ -363,7 +404,7 @@
                     android:textStyle="bold" />
             </LinearLayout>
 
-            <!-- 3. Sumber Cas (Cara 2) -->
+            <!-- Sumber Cas -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -387,7 +428,7 @@
                     android:textStyle="bold" />
             </LinearLayout>
 
-            <!-- 4. CIRI BAHARU: Baki Hayat Nyahcas (Cara 2) -->
+            <!-- Baki Hayat Nyahcas -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -411,7 +452,7 @@
                     android:textStyle="bold" />
             </LinearLayout>
 
-            <!-- 5. CIRI BAHARU: Teknologi Kimia Sel (Cara 2) -->
+            <!-- Teknologi Sel -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

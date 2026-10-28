@@ -1,3 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="14dp"
+    android:orientation="vertical">
+
+    <!-- 1. KAD KOMITMEN PRIVASI -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#1E222B"
+        android:orientation="vertical"
+        android:padding="18dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Komitmen Privasi &amp; Keselamatan Peranti"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <!-- Sifar Penjejakan Data -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="#21262D"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🔒 Sifar Penjejakan Data"
+                android:textColor="#FFB300"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Aplikasi ini tidak mengumpul, menjejak, atau menghantar profil bateri ke pelayan luar. Semua rekod sesi dan data diagnostik disimpan secara setempat dalam peranti anda."
+                android:textColor="#CFD8DC"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <!-- 100% Bebas Iklan -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="#21262D"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="✨ 100% Bebas Iklan"
+                android:textColor="#FFB300"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Bebas daripada sebarang iklan komersial, sepanduk promosi, atau video pop-up bagi memelihara jangka hayat bateri dan kestabilan sistem operasi telefon."
+                android:textColor="#CFD8DC"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <!-- Penjimatan Sumber Ekstrem -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="#21262D"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="⚡ Penjimatan Sumber Ekstrem"
+                android:textColor="#FFB300"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Direka khusus menggunakan model pemantauan pasif berasaskan acara (Event-driven) untuk menjamin penggunaan CPU di bawah 0.1% dan sifar pembaziran tenaga latar belakang."
+                android:textColor="#CFD8DC"
+                android:textSize="11sp" />
+        </LinearLayout>
+    </LinearLayout>
+
     <!-- 2. KAD VERSI APLIKASI -->
     <LinearLayout
         android:layout_width="match_parent"
@@ -15,13 +117,12 @@
             android:textSize="12sp"
             android:textStyle="bold" />
 
-        <!-- TAMBAH ID INI SUPAYA KOTLIN KAU BOLEH BACA -->
         <TextView
             android:id="@+id/tv_credits_version"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="CasWatt Pro v5.0.2"
+            android:text="v5.0.2 Pro"
             android:textColor="#FFFFFF"
             android:textSize="20sp"
             android:textStyle="bold" />
@@ -46,3 +147,65 @@
             android:textColor="#FFB300"
             android:textSize="11sp" />
     </LinearLayout>
+
+    <!-- 3. KAD DEDIKASI & HARAPAN -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:background="#1E222B"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="⚡"
+            android:textSize="24sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="center"
+            android:lineSpacingExtra="4dp"
+            android:text="Semoga CasWatt Pro menjadi perisian diagnostik yang setia menjaga jangka hayat bateri peranti anda, mengelakkan kerosakan perkakasan, dan memaksimumkan keselamatan penggunaan setiap hari."
+            android:textColor="#CFD8DC"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <!-- 4. FOOTER SIGNATURE -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="24dp"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="CasWatt Pro • Idea: Musa Bin Sarudin"
+            android:textColor="#90A4AE"
+            android:textSize="11sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Dilaksanakan Oleh: Gemini"
+            android:textColor="#90A4AE"
+            android:textSize="11sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Versi 5.0.2 Pro • Dibangunkan di Beaufort, Sabah"
+            android:textColor="#546E7A"
+            android:textSize="10sp" />
+    </LinearLayout>
+
+</LinearLayout>

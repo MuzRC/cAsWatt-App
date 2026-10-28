@@ -11,168 +11,17 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Penggera Had Bateri -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#1E222B"
-            android:orientation="vertical"
-            android:padding="16dp">
+        <!-- 1. Kad Servis Background -->
+        <include layout="@layout/layout_alarm_service" />
 
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/switch_battery_alarm"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Penggera Had Bateri"
-                android:textColor="#FFFFFF"
-                android:textSize="15sp"
-                android:textStyle="bold" />
+        <!-- 2. Kad Had Bateri & Suhu -->
+        <include layout="@layout/layout_alarm_thresholds" />
 
-            <TextView
-                android:id="@+id/tv_battery_alarm_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Berbunyi apabila bateri cecah 80%"
-                android:textColor="#90A4AE"
-                android:textSize="12sp" />
+        <!-- 3. Kad Bateri Lemah, Pengecasan Tepu & Keselamatan -->
+        <include layout="@layout/layout_alarm_safety" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:orientation="horizontal">
-
-                <Button
-                    android:id="@+id/btn_thresh_80"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="80%" />
-
-                <Button
-                    android:id="@+id/btn_thresh_85"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:layout_weight="1"
-                    android:text="85%" />
-
-                <Button
-                    android:id="@+id/btn_thresh_90"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:layout_weight="1"
-                    android:text="90%" />
-
-                <Button
-                    android:id="@+id/btn_thresh_100"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:layout_weight="1"
-                    android:text="100%" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- Penggera Suhu Panas -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:background="#1E222B"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/switch_temp_alarm"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Penggera Suhu Panas"
-                android:textColor="#FFFFFF"
-                android:textSize="15sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tv_temp_alarm_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Amaran kecemasan jika suhu cecah 45.0 °C"
-                android:textColor="#90A4AE"
-                android:textSize="12sp" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:orientation="horizontal">
-
-                <Button
-                    android:id="@+id/btn_temp_42"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="42°C" />
-
-                <Button
-                    android:id="@+id/btn_temp_45"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:layout_weight="1"
-                    android:text="45°C" />
-
-                <Button
-                    android:id="@+id/btn_temp_48"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:layout_weight="1"
-                    android:text="48°C" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- Suis Tambahan & Servis -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:background="#1E222B"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/switch_low_battery_alarm"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Penggera Bateri Lemah (20%)"
-                android:textColor="#CFD8DC" />
-
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/switch_trickle_alarm"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="Penggera Cas Menitis (Trickle)"
-                android:textColor="#CFD8DC" />
-
-            <Button
-    android:id="@+id/btn_test_alarm"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="16dp"
-    android:text="Uji Bunyi Penggera dan Suara TTS" />
-
-
-            <Button
-                android:id="@+id/btn_toggle_service"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Jalankan Servis Background" />
-        </LinearLayout>
+        <!-- 4. Kad Saluran Audio, Waktu Senyap & Uji Penggera -->
+        <include layout="@layout/layout_alarm_audio" />
 
     </LinearLayout>
 </ScrollView>

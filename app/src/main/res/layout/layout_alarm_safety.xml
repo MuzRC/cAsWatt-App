@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <!-- 1. KAD STATUS BATERI (LEMAH & PENGEGASAN TEPU) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:background="#1E222B"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Penggera Status Bateri"
+            android:textColor="#00E676"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/switch_low_battery_alarm"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="Penggera Bateri Lemah (20%)"
+            android:textColor="#CFD8DC"
+            android:textSize="13sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Amaran awal sebelum bateri kering sepenuhnya."
+            android:textColor="#90A4AE"
+            android:textSize="11sp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="#263238" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/switch_trickle_alarm"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Pengecasan Tepu (Trickle Charge)"
+            android:textColor="#CFD8DC"
+            android:textSize="13sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Berbunyi apabila fasa arus rendah selesai dan bateri benar-benar 100% tepu."
+            android:textColor="#90A4AE"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+    <!-- 2. KAD PENDERIA KESELAMATAN PINTAR -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:background="#1E222B"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Penderia Keselamatan Pintar"
+            android:textColor="#00E676"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/switch_anti_theft"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="Penggera Anti-Kecurian (Cabut Wayar)"
+            android:textColor="#CFD8DC"
+            android:textSize="13sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Siren berbunyi jika wayar cas dicabut semasa skrin berkunci."
+            android:textColor="#90A4AE"
+            android:textSize="11sp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="#263238" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/switch_slow_charge"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Kesan Cas Perlahan / Plug Longgar"
+            android:textColor="#CFD8DC"
+            android:textSize="13sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Amaran jika arus cas terlalu rendah selepas 60 saat disambungkan."
+            android:textColor="#90A4AE"
+            android:textSize="11sp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="#263238" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/switch_over_voltage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Penggera Voltan Terlebih (> 4.45V)"
+            android:textColor="#CFD8DC"
+            android:textSize="13sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Lindungi sel bateri daripada lonjakan voltan berbahaya."
+            android:textColor="#90A4AE"
+            android:textSize="11sp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="#263238" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/switch_rapid_drain"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Kesan Bateri Kering Mendadak"
+            android:textColor="#CFD8DC"
+            android:textSize="13sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Amaran jika bateri susut lebih 5% dalam 10 minit di latar belakang."
+            android:textColor="#90A4AE"
+            android:textSize="11sp" />
+
+        <Button
+            android:id="@+id/btn_check_battery_drain"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:minHeight="38dp"
+            android:backgroundTint="#21262D"
+            android:text="🔍 Periksa Penggunaan Bateri Sistem"
+            android:textAllCaps="false"
+            android:textColor="#80D8FF"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+</LinearLayout>

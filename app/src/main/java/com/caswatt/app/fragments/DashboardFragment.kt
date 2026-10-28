@@ -5,9 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
-import android.os.Build
 import android.os.Bundle
-import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -114,7 +112,7 @@ class DashboardFragment : Fragment() {
         super.onResume()
         val ctx = context ?: return
 
-        // Muat data bateri serta-merta bila tab dibuka tanpa perlu tunggu perubahan bateri baru
+        // Muat data bateri serta-merta bila tab dibuka
         val stickyIntent = try {
             ctx.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
         } catch (_: Exception) {
@@ -191,25 +189,18 @@ class DashboardFragment : Fragment() {
         tvThermalThrottle.visibility = if (isCharging && ChargingSessionManager.isThermalThrottling) View.VISIBLE else View.GONE
         tvTrickleStatus.visibility = if (isCharging && ChargingSessionManager.isTrickleCharging) View.VISIBLE else View.GONE
 
-        // Kualiti Kabel Dinamik & Smart ETA
+        // Kualiti Kabel Dinamik & Smart ETA (Cara 2: Terus guna setTextColor)
         if (isCharging) {
             val quality = ChargingSessionManager.cableQuality
+            tvCableQuality.text = quality
 
-            // Menentukan warna amaran status kualiti sambungan
-            val qualityHex = when {
-                quality.contains("Lemah", ignoreCase = true) || quality.contains("Tinggi", ignoreCase = true) -> "#FF5252" // Merah amaran
-                quality.contains("Baik", ignoreCase = true) || quality.contains("Pantas", ignoreCase = true) || quality.contains("Cemerlang", ignoreCase = true) -> "#00E676" // Hijau mantap
-                quality.contains("Mengukur", ignoreCase = true) -> "#90A4AE" // Kelabu
-                else -> "#FFD54F" // Kuning standard
+            val color = when {
+                quality.contains("Lemah", ignoreCase = true) || quality.contains("Tinggi", ignoreCase = true) -> 0xFFFF5252.toInt() // Merah amaran
+                quality.contains("Baik", ignoreCase = true) || quality.contains("Pantas", ignoreCase = true) || quality.contains("Cemerlang", ignoreCase = true) -> 0xFF00E676.toInt() // Hijau padu
+                quality.contains("Mengukur", ignoreCase = true) -> 0xFF90A4AE.toInt() // Kelabu
+                else -> 0xFFFFD54F.toInt() // Kuning standard
             }
-
-            val cableHtml = "<font color=\"#CFD8DC\">Kualiti Kabel: </font><font color=\"$qualityHex\"><b>$quality</b></font>"
-            tvCableQuality.text = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                Html.fromHtml(cableHtml, Html.FROM_HTML_MODE_LEGACY)
-            } else {
-                @Suppress("DEPRECATION")
-                Html.fromHtml(cableHtml)
-            }
+            tvCableQuality.setTextColor(color)
 
             val eta80 = ChargingSessionManager.etaTo80Min
             tvSmartEta80.text = when {
@@ -225,7 +216,7 @@ class DashboardFragment : Fragment() {
                 else -> "⏱️ Anggaran ke 100%: Mengira keluk arus..."
             }
         } else {
-            tvCableQuality.text = "Kualiti Kabel: Pengecas Tidak Bersambung"
+            tvCableQuality.text = "Pengecas Tidak Bersambung"
             tvCableQuality.setTextColor(0xFF90A4AE.toInt())
             tvSmartEta80.text = "⏱️ Anggaran ke 80%: Pengecas tidak dicucuk"
             tvSmartEta100.text = "⏱️ Anggaran ke 100%: Menggunakan kuasa bateri"

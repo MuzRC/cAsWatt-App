@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <!-- 1. KAD PENGGERA HAD BATERI -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:background="#1E222B"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/switch_battery_alarm"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Penggera Had Bateri"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_battery_alarm_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Berbunyi apabila bateri cecah 80%"
+            android:textColor="#90A4AE"
+            android:textSize="12sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_thresh_80"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:minHeight="38dp"
+                android:text="80%"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/btn_thresh_85"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_weight="1"
+                android:minHeight="38dp"
+                android:text="85%"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/btn_thresh_90"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_weight="1"
+                android:minHeight="38dp"
+                android:text="90%"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/btn_thresh_100"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_weight="1"
+                android:minHeight="38dp"
+                android:text="100%"
+                android:textSize="12sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- 2. KAD PENGGERA SUHU PANAS -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:background="#1E222B"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/switch_temp_alarm"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Penggera Suhu Panas"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_temp_alarm_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Amaran kecemasan jika suhu cecah 45.0 °C"
+            android:textColor="#90A4AE"
+            android:textSize="12sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_temp_42"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:minHeight="38dp"
+                android:text="42°C"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/btn_temp_45"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_weight="1"
+                android:minHeight="38dp"
+                android:text="45°C"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/btn_temp_48"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_weight="1"
+                android:minHeight="38dp"
+                android:text="48°C"
+                android:textSize="12sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

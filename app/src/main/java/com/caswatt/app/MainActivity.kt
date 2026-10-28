@@ -9,6 +9,7 @@ import android.graphics.Color
 import android.os.BatteryManager
 import android.os.Build
 import android.os.Bundle
+import android.text.Html
 import android.text.InputType
 import android.util.Log
 import android.view.View
@@ -209,6 +210,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.nav_health -> {
                     tabHealth.visibility = View.VISIBLE
+                    updateHealthDisplay()
                     true
                 }
                 R.id.nav_settings_alarm -> {
@@ -574,8 +576,10 @@ class MainActivity : AppCompatActivity() {
         val status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
         val isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
                 status == BatteryManager.BATTERY_STATUS_FULL
-		// 👉 SELITKAN BARIS INI SUPAYA MA MASA NYAHCAS TER-RESET BILA CABUT WAYAR:
+
+        // Selitkan semakan peralihan cas supaya masa nyahcas ter-reset tepat bila cabut wayar
         ChargingSessionManager.checkStateTransition(this, isCharging, pct)
+
         val currentNowMicro = batteryManager?.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW) ?: 0
         
         // Pembaikan had pemisah (50,000) supaya arus pengecasan pantas 10A-12A tidak tersalah bahagi
@@ -663,13 +667,35 @@ class MainActivity : AppCompatActivity() {
             chartView.invalidate()
         }
 
-        // Paparkan status kesihatan sebenar dengan petunjuk boleh disentuh
-        tvHealthCondition.text = "Kesihatan: " + BatteryHealthManager.getFormattedHealthSummary(this) + " (Sentuh untuk ubah)"
+        // Paparkan status kesihatan sebenar dengan susunan kemas & profesional
+        updateHealthDisplay()
+
         tvHealthCycles.text = String.format(Locale.US, "Anggaran Kitaran: %.1f kitaran", ChargingSessionManager.getEstimatedCycles())
         tvHealthCumulative.text = String.format(Locale.US, "Jumlah Kumulatif Cas: %.0f%% cas", ChargingSessionManager.cumulativePctCharged)
         tvHealthVoltageDetail.text = String.format(Locale.US, "Voltan Sel Semasa: %.2f V (Normal: 3.7V - 4.4V)", voltageV)
         val tempStatus = if (tempC < 40.0) "Zon Selamat (Selesa)" else if (tempC < 45.0) "Zon Suam" else "Zon Panas Bahaya!"
         tvHealthTempDetail.text = String.format(Locale.US, "Suhu Sel: %.1f °C (%s)", tempC, tempStatus)
+    }
+
+    private fun updateHealthDisplay() {
+        val healthPct = BatteryHealthManager.getHealthPercentage(this)
+        val estMah = BatteryHealthManager.getEstimatedCapacityMah(this).toInt()
+        val desMah = BatteryHealthManager.getDesignCapacity(this)
+
+        val healthHtml = """
+            <big><b><font color="#00E676">%.1f%%</font></b></big> <font color="#CFD8DC">Kesihatan Bateri</font><br/>
+            <small><font color="#90A4AE">%d mAh / %d mAh  •  <font color="#29B6F6"><u>Ubah ✎</u></font></font></small>
+        """.trimIndent()
+
+        tvHealthCondition.text = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            Html.fromHtml(
+                String.format(Locale.US, healthHtml, healthPct, estMah, desMah),
+                Html.FROM_HTML_MODE_LEGACY
+            )
+        } else {
+            @Suppress("DEPRECATION")
+            Html.fromHtml(String.format(Locale.US, healthHtml, healthPct, estMah, desMah))
+        }
     }
 
     private fun showEditCapacityDialog() {
@@ -691,7 +717,7 @@ class MainActivity : AppCompatActivity() {
                 val enteredValue = input.text.toString().toIntOrNull()
                 if (enteredValue != null && enteredValue in 1000..15000) {
                     BatteryHealthManager.setDesignCapacity(this, enteredValue)
-                    tvHealthCondition.text = "Kesihatan: " + BatteryHealthManager.getFormattedHealthSummary(this) + " (Sentuh untuk ubah)"
+                    updateHealthDisplay()
                     Toast.makeText(this, "Kapasiti berjaya disimpan: ${enteredValue} mAh", Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(this, "Sila masukkan nilai mAh yang sah (1000 - 15000 mAh)", Toast.LENGTH_SHORT).show()

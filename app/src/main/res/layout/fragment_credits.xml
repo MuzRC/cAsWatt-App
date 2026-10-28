@@ -22,13 +22,14 @@
             android:textStyle="bold" />
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:gravity="center"
-            android:text="Aplikasi Pemantauan Pengecasan Pantas & Kesihatan Bateri Android"
-            android:textColor="#90A4AE"
-            android:textSize="13sp" />
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
+    android:gravity="center"
+    android:text="Aplikasi Pemantauan Pengecasan Pantas dan Kesihatan Bateri Android"
+    android:textColor="#90A4AE"
+    android:textSize="13sp" />
+
 
         <TextView
             android:layout_width="wrap_content"

@@ -8,37 +8,20 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:padding="16dp">
 
-        <TextView
-            android:id="@+id/tv_credits_version"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="CasWatt Pro"
-            android:textColor="#00E676"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+        <!-- 1. Header & Konsep (Musa Bin Sarudin) -->
+        <include layout="@layout/layout_credits_concept" />
 
-        <TextView
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="8dp"
-    android:gravity="center"
-    android:text="Aplikasi Pemantauan Pengecasan Pantas dan Kesihatan Bateri Android"
-    android:textColor="#90A4AE"
-    android:textSize="13sp" />
+        <!-- 2. Kejuruteraan & Perisian (Gemini) -->
+        <include layout="@layout/layout_credits_engineering" />
 
+        <!-- 3. Piawaian Diagnostik Bateri & Keselamatan -->
+        <include layout="@layout/layout_credits_standards" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:gravity="center"
-            android:text="Dibangunkan dengan senibina modular Fragment berprestasi tinggi."
-            android:textColor="#CFD8DC"
-            android:textSize="12sp" />
+        <!-- 4. Privasi, Versi & Dedikasi Akhir -->
+        <include layout="@layout/layout_credits_privacy" />
 
     </LinearLayout>
 </ScrollView>

@@ -159,11 +159,12 @@
                 android:textColor="#CFD8DC" />
 
             <Button
-                android:id="@+id/btn_test_alarm"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Uji Bunyi Penggera & Suara TTS" />
+    android:id="@+id/btn_test_alarm"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="16dp"
+    android:text="Uji Bunyi Penggera dan Suara TTS" />
+
 
             <Button
                 android:id="@+id/btn_toggle_service"

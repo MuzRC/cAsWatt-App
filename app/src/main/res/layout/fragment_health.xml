@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#121318"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#1E222B"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Status Kesihatan Perkakasan OS:"
+                android:textColor="#90A4AE"
+                android:textSize="13sp" />
+
+            <!-- Kad Status Kesihatan Boleh Ditekan -->
+            <TextView
+                android:id="@+id/tv_health_condition"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:lineSpacingExtra="4dp"
+                android:text="Mengira Kesihatan..."
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/tv_health_cycles"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Anggaran Kitaran: 0.0 kitaran"
+                android:textColor="#CFD8DC"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tv_health_cumulative"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Jumlah Kumulatif Cas: 0% cas"
+                android:textColor="#90A4AE"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/tv_health_voltage_detail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Voltan Sel Semasa: 0.00 V"
+                android:textColor="#CFD8DC"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/tv_health_temp_detail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Suhu Sel: 0.0 °C"
+                android:textColor="#CFD8DC"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

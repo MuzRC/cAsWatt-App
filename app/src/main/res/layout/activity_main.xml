@@ -32,7 +32,7 @@
 
     </LinearLayout>
 
-    <!-- 2. Bekas Fragment (Sekarang diikat di bawah Header) -->
+    <!-- 2. Bekas Fragment -->
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragment_container"
         android:layout_width="0dp"
@@ -40,7 +40,7 @@
         app:layout_constraintTop_toBottomOf="@id/layout_top_header"
         app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_endToEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- 3. Bar Navigasi 5 Tab Bawah -->
     <com.google.android.material.bottomnavigation.BottomNavigationView

@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
@@ -40,6 +41,22 @@ class DashboardFragment : Fragment() {
     private lateinit var tvTemp: TextView
     private lateinit var tvPlug: TextView
     private lateinit var btnResetSession: Button
+
+    // Komponen Baris Aliran Kuasa (Ratio Bar)
+    private lateinit var layoutPowerRatio: LinearLayout
+    private lateinit var tvInputVal: TextView
+    private lateinit var tvRatioDivider: TextView
+    private lateinit var tvDrainVal: TextView
+    private lateinit var tvEfficiencyBadge: TextView
+
+    // Status Mod Unit & Simpanan Intent
+    private var isWattMode: Boolean = false
+    private var lastKnownIntent: Intent? = null
+
+    companion object {
+        // Pilihan A: Ingatan Arus Nyahcas Terakhir (Beban telefon sebelum dicucuk)
+        var lastDischargeMa: Int = 500
+    }
 
     private val batteryReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -78,6 +95,13 @@ class DashboardFragment : Fragment() {
         tvTemp = view.findViewById(R.id.tv_main_temp)
         tvPlug = view.findViewById(R.id.tv_main_plug)
         btnResetSession = view.findViewById(R.id.btn_reset_session)
+
+        // Bind Baris Aliran Nisbah Kuasa
+        layoutPowerRatio = view.findViewById(R.id.layout_power_ratio)
+        tvInputVal = view.findViewById(R.id.tv_input_val)
+        tvRatioDivider = view.findViewById(R.id.tv_ratio_divider)
+        tvDrainVal = view.findViewById(R.id.tv_drain_val)
+        tvEfficiencyBadge = view.findViewById(R.id.tv_efficiency_badge)
     }
 
     private fun setupListeners() {
@@ -106,13 +130,20 @@ class DashboardFragment : Fragment() {
             tvCostMyr.text = "RM 0.00"
             Toast.makeText(ctx, "Meter sesi berjaya diset semula!", Toast.LENGTH_SHORT).show()
         }
+
+        // Ciri 5: Sentuh Baris Aliran untuk Bertukar Unit (mA <-> Watt)
+        layoutPowerRatio.setOnClickListener {
+            isWattMode = !isWattMode
+            val toastMsg = if (isWattMode) "Paparan Kuasa (Watt)" else "Paparan Arus (mA)"
+            Toast.makeText(context, toastMsg, Toast.LENGTH_SHORT).show()
+            lastKnownIntent?.let { updateBatteryInfo(it) }
+        }
     }
 
     override fun onResume() {
         super.onResume()
         val ctx = context ?: return
 
-        // Muat data bateri serta-merta bila tab dibuka
         val stickyIntent = try {
             ctx.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
         } catch (_: Exception) {
@@ -139,6 +170,7 @@ class DashboardFragment : Fragment() {
     }
 
     private fun updateBatteryInfo(intent: Intent) {
+        lastKnownIntent = intent
         val ctx = context ?: return
         val batteryManager = ctx.getSystemService(Context.BATTERY_SERVICE) as? BatteryManager
 
@@ -179,26 +211,100 @@ class DashboardFragment : Fragment() {
         tvStatus.setTextColor(if (isCharging) 0xFF00E676.toInt() else 0xFFFFAB00.toInt())
         tvWatt.text = String.format(Locale.US, "%.2f W", watts)
         tvWatt.setTextColor(if (isCharging) 0xFF00E676.toInt() else 0xFFFFFFFF.toInt())
-        tvCurrent.text = "Arus: $currentMa mA"
+        tvCurrent.text = "Arus Bersih: $currentMa mA"
         tvVoltage.text = String.format(Locale.US, "Voltan: %.2f V", voltageV)
         tvLevel.text = "Peratus Bateri: $pct%"
         tvTemp.text = String.format(Locale.US, "Suhu Bateri: %.1f °C", tempC)
         tvPlug.text = "Sumber Cas: $plugType"
 
+        // =========================================================================
+        // LOGIK ALIRAN KUASA (PILIHAN A + CARA B + 5 PENAMBAHBAIKAN)
+        // =========================================================================
+        if (isCharging) {
+            // 1. Ambil Ingatan Arus Nyahcas Terakhir (Pilihan A)
+            val phoneDrainMa = if (lastDischargeMa > 100) lastDischargeMa else 500
+            val inputMa = currentMa + phoneDrainMa
+
+            // 2. Semak Mod Defisit (Beban sistem melebihi daya pengecas)
+            val isDeficit = currentMa <= 50 && inputMa <= phoneDrainMa
+
+            // 3. Kira Peratus Kecekapan Bersih (%)
+            val efficiencyPct = if (inputMa > 0) {
+                ((currentMa.toDouble() / inputMa.toDouble()) * 100).toInt().coerceIn(0, 100)
+            } else {
+                0
+            }
+
+            // 4. Paparan Nilai Dinamik (mA vs Watt) & Simbol Panah
+            if (isWattMode) {
+                val inputWatt = (inputMa.toDouble() * voltageV) / 1000.0
+                val drainWatt = (phoneDrainMa.toDouble() * voltageV) / 1000.0
+                tvInputVal.text = String.format(Locale.US, "↓ %.1f W", inputWatt)
+                tvDrainVal.text = String.format(Locale.US, "↑ %.1f W", drainWatt)
+            } else {
+                tvInputVal.text = "↓ ${inputMa}mA"
+                tvDrainVal.text = "↑ ${phoneDrainMa}mA"
+            }
+
+            // 5. Cara B: Warna Dinamik untuk Input Pengecas (Kiri)
+            val inputColor = when {
+                inputMa >= 2500 -> 0xFF00E676.toInt() // Hijau: Pengecasan pantas
+                inputMa >= 1000 -> 0xFFFFD54F.toInt() // Kuning: Standard
+                else -> 0xFFCFD8DC.toInt()            // Kelabu: Pengecasan perlahan
+            }
+            tvInputVal.setTextColor(inputColor)
+
+            // 6. Cara B: Warna Dinamik untuk Beban Telefon (Kanan)
+            val drainColor = when {
+                phoneDrainMa >= 800 -> 0xFFFF5252.toInt() // Merah: Penggunaan berat / panas
+                phoneDrainMa >= 500 -> 0xFFFFD54F.toInt() // Kuning: Beban sederhana
+                else -> 0xFFCFD8DC.toInt()               // Kelabu/Putih: Santai / skrin malap
+            }
+            tvDrainVal.setTextColor(drainColor)
+
+            // 7. Lencana Kecekapan Bersih atau Amaran Defisit
+            if (isDeficit) {
+                tvEfficiencyBadge.text = "DEFISIT ⚠️"
+                tvEfficiencyBadge.setTextColor(0xFFFF5252.toInt())
+            } else {
+                tvEfficiencyBadge.text = "$efficiencyPct% Bersih"
+                tvEfficiencyBadge.setTextColor(0xFF80D8FF.toInt())
+            }
+        } else {
+            // Semasa fasa nyahcas: Sentiasa rekod penggunaan arus sebenar ke memori (Pilihan A)
+            if (currentMa > 100) {
+                lastDischargeMa = currentMa
+            }
+
+            if (isWattMode) {
+                val drainWatt = (currentMa.toDouble() * voltageV) / 1000.0
+                tvInputVal.text = "↓ 0.0 W"
+                tvDrainVal.text = String.format(Locale.US, "↑ %.1f W", drainWatt)
+            } else {
+                tvInputVal.text = "↓ 0mA"
+                tvDrainVal.text = "↑ ${currentMa}mA"
+            }
+
+            tvInputVal.setTextColor(0xFF90A4AE.toInt())
+            tvDrainVal.setTextColor(0xFFFFAB00.toInt()) // Kuning ambar tanda nyahcas
+            tvEfficiencyBadge.text = "Nyahcas"
+            tvEfficiencyBadge.setTextColor(0xFF90A4AE.toInt())
+        }
+
         // Live Badges
         tvThermalThrottle.visibility = if (isCharging && ChargingSessionManager.isThermalThrottling) View.VISIBLE else View.GONE
         tvTrickleStatus.visibility = if (isCharging && ChargingSessionManager.isTrickleCharging) View.VISIBLE else View.GONE
 
-        // Kualiti Kabel Dinamik & Smart ETA (Cara 2: Terus guna setTextColor)
+        // Kualiti Kabel Dinamik & Smart ETA (Cara 2)
         if (isCharging) {
             val quality = ChargingSessionManager.cableQuality
             tvCableQuality.text = quality
 
             val color = when {
-                quality.contains("Lemah", ignoreCase = true) || quality.contains("Tinggi", ignoreCase = true) -> 0xFFFF5252.toInt() // Merah amaran
-                quality.contains("Baik", ignoreCase = true) || quality.contains("Pantas", ignoreCase = true) || quality.contains("Cemerlang", ignoreCase = true) -> 0xFF00E676.toInt() // Hijau padu
-                quality.contains("Mengukur", ignoreCase = true) -> 0xFF90A4AE.toInt() // Kelabu
-                else -> 0xFFFFD54F.toInt() // Kuning standard
+                quality.contains("Lemah", ignoreCase = true) || quality.contains("Tinggi", ignoreCase = true) -> 0xFFFF5252.toInt()
+                quality.contains("Baik", ignoreCase = true) || quality.contains("Pantas", ignoreCase = true) || quality.contains("Cemerlang", ignoreCase = true) -> 0xFF00E676.toInt()
+                quality.contains("Mengukur", ignoreCase = true) -> 0xFF90A4AE.toInt()
+                else -> 0xFFFFD54F.toInt()
             }
             tvCableQuality.setTextColor(color)
 

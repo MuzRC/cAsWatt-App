@@ -1,11 +1,243 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/view_tab_dashboard"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
-    android:background="#121318">
+    android:background="#121318"
+    android:fillViewport="true">
 
-    <!-- Tampal LinearLayout dan kad-kad meter Tab 1 sedia ada di sini -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
 
+        <!-- Status Cas Utama -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#1E222B"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/tv_main_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="MEMERIKSA STATUS..."
+                android:textColor="#00E676"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_main_watt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="0.00 W"
+                android:textColor="#FFFFFF"
+                android:textSize="32sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_main_current"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Arus: 0 mA"
+                android:textColor="#CFD8DC"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tv_main_voltage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Voltan: 0.00 V"
+                android:textColor="#CFD8DC"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tv_thermal_throttle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="⚠️ THERMAL THROTTLING AKTIF"
+                android:textColor="#FF5252"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tv_trickle_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="💧 TRICKLE CHARGE (MENJAGA HAYAT)"
+                android:textColor="#29B6F6"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <!-- Kualiti Kabel & Smart ETA -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="#1E222B"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/tv_cable_quality"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Kualiti Kabel: Memeriksa..."
+                android:textColor="#CFD8DC"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tv_smart_eta_80"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="⏱️ Anggaran ke 80%: --"
+                android:textColor="#B0BEC5"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/tv_smart_eta_100"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="⏱️ Anggaran ke 100%: --"
+                android:textColor="#B0BEC5"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <!-- Tempoh Nyahcas -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="#1E222B"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/tv_discharge_duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="--:--:--"
+                android:textColor="#29B6F6"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_discharge_sub"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Bateri: --%"
+                android:textColor="#90A4AE"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <!-- Metrik Kuasa & Tenaga Sesi -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="#1E222B"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tenaga Sesi Semasa"
+                android:textColor="#00E676"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_peak_watt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="0.00 W"
+                android:textColor="#CFD8DC"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/tv_total_mah"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="0 mAh"
+                android:textColor="#CFD8DC"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/tv_energy_wh"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="0.00 Wh"
+                android:textColor="#CFD8DC"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/tv_cost_myr"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="RM 0.00"
+                android:textColor="#CFD8DC"
+                android:textSize="13sp" />
+
+            <Button
+                android:id="@+id/btn_reset_session"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Set Semula Sesi Ini" />
+        </LinearLayout>
+
+        <!-- Maklumat Sistem Asas -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="#1E222B"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/tv_main_level"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Peratus Bateri: --%"
+                android:textColor="#CFD8DC"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/tv_main_temp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Suhu Bateri: -- °C"
+                android:textColor="#CFD8DC"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/tv_main_plug"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Sumber Cas: --"
+                android:textColor="#CFD8DC"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+    </LinearLayout>
 </ScrollView>

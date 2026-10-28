@@ -3,6 +3,9 @@ package com.caswatt.app
 import android.content.Context
 import org.json.JSONArray
 import org.json.JSONObject
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 object ChargingStorageHelper {
     private const val PREFS_NAME = "caswatt_prefs"
@@ -99,5 +102,35 @@ object ChargingStorageHelper {
             })
         }
         prefs.edit().putString(KEY_SESSION_LOGS, array.toString()).apply()
+    }
+
+    // Penjana data teks CSV untuk dikongsi ke WhatsApp / Drive / Fail
+    fun generateCsvData(sessions: List<SessionRecord>, dailies: List<DailyRecord>): String {
+        val sb = StringBuilder()
+        sb.append("--- REKOD SESI CAS ---\n")
+        sb.append("Tarikh Mula,Tarikh Tamat,Tempoh,Paras Mula,Paras Tamat,Watt Puncak,Watt Purata,Jumlah mAh,Tenaga Wh,Kualiti Kabel\n")
+        val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+        for (s in sessions) {
+            val dur = ChargingDiagnosticsHelper.formatDuration(s.endTime - s.startTime)
+            sb.append("\"").append(sdf.format(Date(s.startTime))).append("\",")
+            sb.append("\"").append(sdf.format(Date(s.endTime))).append("\",")
+            sb.append("\"").append(dur).append("\",")
+            sb.append(s.startLevel).append("%,")
+            sb.append(s.endLevel).append("%,")
+            sb.append(String.format(Locale.US, "%.2f", s.peakWatt)).append(",")
+            sb.append(String.format(Locale.US, "%.2f", s.avgWatt)).append(",")
+            sb.append(String.format(Locale.US, "%.0f", s.totalMah)).append(",")
+            sb.append(String.format(Locale.US, "%.2f", s.energyWh)).append(",")
+            sb.append("\"").append(s.cableQuality).append("\"\n")
+        }
+        sb.append("\n--- LOG CAS HARIAN ---\n")
+        sb.append("Tarikh,Kekerapan Dicas,Jumlah mAh,Watt Puncak\n")
+        for (d in dailies) {
+            sb.append("\"").append(d.date).append("\",")
+            sb.append(d.count).append(",")
+            sb.append(String.format(Locale.US, "%.0f", d.totalMah)).append(",")
+            sb.append(String.format(Locale.US, "%.2f", d.peakWatt)).append("\n")
+        }
+        return sb.toString()
     }
 }

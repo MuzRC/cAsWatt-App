@@ -19,6 +19,8 @@ object ChargingSessionManager {
     private const val KEY_UNPLUG_LEVEL = "unplug_level"
     private const val KEY_CUMULATIVE_PCT = "cumulative_pct_charged"
     private const val KEY_HEALTH_STATUS = "last_health_status"
+    private const val KEY_ACTIVE_SESSION_START = "active_session_start_time"
+    private const val KEY_ACTIVE_SESSION_LEVEL = "active_session_start_level"
     private const val TARIFF_PER_KWH = 0.38
     
     // Muatan penimbal dinaikkan ke 400 titik dengan kawalan selang masa
@@ -111,6 +113,13 @@ object ChargingSessionManager {
             lastUnplugLevel = prefs.getInt(KEY_UNPLUG_LEVEL, 100)
         }
 
+        // Pulihkan sesi aktif jika aplikasi dimulakan semula semasa masih mengecas
+        val savedSessionStart = prefs.getLong(KEY_ACTIVE_SESSION_START, 0L)
+        if (savedSessionStart > 0L) {
+            sessionStartTime = savedSessionStart
+            sessionStartLevel = prefs.getInt(KEY_ACTIVE_SESSION_LEVEL, 0)
+        }
+
         cumulativePctCharged = prefs.getFloat(KEY_CUMULATIVE_PCT, 0f).toDouble()
         healthCondition = prefs.getString(KEY_HEALTH_STATUS, "Baik (Good)") ?: "Baik (Good)"
 
@@ -136,6 +145,13 @@ object ChargingSessionManager {
         ensureInit(context)
         if (wasCharging == null) {
             wasCharging = isCharging
+            // PEMBAIKAN UTAMA: Jika aplikasi baru dibuka/dikemas kini semasa telefon sedia dicas,
+            // mulakan sesi pengecasan serta-merta dan jangan return begitu sahaja!
+            if (isCharging) {
+                if (sessionStartTime <= 0L) {
+                    onChargingStarted(context, levelPct)
+                }
+            }
             return
         }
         if (wasCharging == false && isCharging) onChargingStarted(context, levelPct)
@@ -167,6 +183,12 @@ object ChargingSessionManager {
         cableQuality = "Mengukur kualiti kabel..."
         isThermalThrottling = false
 
+        // Simpan penanda sesi aktif ke storan kekal
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
+            .putLong(KEY_ACTIVE_SESSION_START, sessionStartTime)
+            .putInt(KEY_ACTIVE_SESSION_LEVEL, sessionStartLevel)
+            .apply()
+
         // Reset penapis kelicinan graf
         lastValidWatt = 0.0
         smoothedWatt = 0.0
@@ -195,10 +217,13 @@ object ChargingSessionManager {
         wasCharging = false
         isTrickleCharging = false
 
+        // Padam sesi aktif daripada storan kekal
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
             .putLong(KEY_UNPLUG_TIME, lastUnplugTimestamp)
             .putInt(KEY_UNPLUG_LEVEL, lastUnplugLevel)
             .putFloat(KEY_CUMULATIVE_PCT, cumulativePctCharged.toFloat())
+            .remove(KEY_ACTIVE_SESSION_START)
+            .remove(KEY_ACTIVE_SESSION_LEVEL)
             .apply()
 
         val today = getTodayDateString()
@@ -236,6 +261,10 @@ object ChargingSessionManager {
             saveSessionRecords(context)
         }
 
+        // Reset penanda waktu sesi sebaik sahaja kabel dicabut
+        sessionStartTime = 0L
+        sessionStartLevel = 0
+
         BatteryHealthManager.onChargingSessionFinished(context, sessionStartLevel, currentLevel, totalMah)
     }
 
@@ -263,6 +292,11 @@ object ChargingSessionManager {
         }
 
         if (isCharging) {
+            // FAIL-SAFE: Jika atas apa jua sebab sessionStartTime masih 0L semasa mengecas, paksa mulakan sesi
+            if (sessionStartTime <= 0L) {
+                onChargingStarted(context, levelPct)
+            }
+
             if (sessionStartTemp == 0.0 && tempC > 0.0) sessionStartTemp = tempC
             sessionLastTemp = tempC
 
@@ -303,7 +337,8 @@ object ChargingSessionManager {
             // 4. Pengesanan Trickle & Pengecasan Penuh
             if (levelPct == 100) {
                 isTrickleCharging = (currentMa in 20..250)
-                if (currentMa in 1..40 && !fullSaturationAlertFired && trickleAlarmEnabled) {
+                val isSatAlarmOn = try { AlarmPreferencesHelper.isSaturationEnabled(context) } catch (_: Exception) { trickleAlarmEnabled }
+                if (currentMa in 1..40 && !fullSaturationAlertFired && isSatAlarmOn) {
                     fullSaturationAlertFired = true
                     triggerAlarm(context)
                     BatteryVoiceAlert.speak(context, "Pengecasan selesai. Bateri kini seratus peratus tepu.")
@@ -313,7 +348,6 @@ object ChargingSessionManager {
             }
 
             // 5. Penapisan Kelicinan Titik Graf (Exponential Moving Average / EMA)
-            // Mengelakkan riak kecil denyutan CPU daripada mengotorkan visual graf
             smoothedWatt = if (smoothedWatt <= 0.0) {
                 cleanWatt
             } else {
@@ -340,25 +374,38 @@ object ChargingSessionManager {
 
             checkAlarms(context, levelPct, tempC)
         } else {
-            if (levelPct <= 20 && !lowBatteryAlertFired && lowBatteryAlarmEnabled) {
-                lowBatteryAlertFired = true
-                triggerAlarm(context)
-                BatteryVoiceAlert.speak(context, "Amaran. Bateri lemah pada paras " + levelPct + " peratus. Sila cucuk pengecas.")
+            // Reset semula flag bateri lemah jika peratus naik semula atas 20%
+            if (levelPct > 20) {
+                lowBatteryAlertFired = false
+            } else if (levelPct <= 20 && !lowBatteryAlertFired) {
+                val isLowAlarmOn = try { AlarmPreferencesHelper.isLowBatteryEnabled(context) } catch (_: Exception) { lowBatteryAlarmEnabled }
+                if (isLowAlarmOn) {
+                    lowBatteryAlertFired = true
+                    triggerAlarm(context)
+                    BatteryVoiceAlert.speak(context, "Amaran. Bateri lemah pada paras $levelPct peratus. Sila cucuk pengecas.")
+                }
             }
         }
         lastTimestamp = now
     }
 
     private fun checkAlarms(context: Context, levelPct: Int, tempC: Double) {
-        if (batteryAlarmEnabled && !batteryAlarmFired && levelPct >= batteryThreshold) {
+        // Ambil tetapan terus dari AlarmPreferencesHelper untuk penyelarasan penuh dengan tab Penggera baharu
+        val isBatAlarmOn = try { AlarmPreferencesHelper.isHighLevelEnabled(context) } catch (_: Exception) { batteryAlarmEnabled }
+        val batThresh = try { AlarmPreferencesHelper.getHighLevelThreshold(context) } catch (_: Exception) { batteryThreshold }
+        
+        val isTmpAlarmOn = try { AlarmPreferencesHelper.isThermalEnabled(context) } catch (_: Exception) { tempAlarmEnabled }
+        val tmpThresh = try { AlarmPreferencesHelper.getThermalThreshold(context).toInt() } catch (_: Exception) { tempThreshold }
+
+        if (isBatAlarmOn && !batteryAlarmFired && levelPct >= batThresh) {
             batteryAlarmFired = true
             triggerAlarm(context)
-            BatteryVoiceAlert.speak(context, "Perhatian. Paras bateri sudah mencecah " + levelPct + " peratus. Sila cabut kabel pengecas.")
+            BatteryVoiceAlert.speak(context, "Perhatian. Paras bateri sudah mencecah $levelPct peratus. Sila cabut kabel pengecas.")
         }
-        if (tempAlarmEnabled && !tempAlarmFired && tempC >= tempThreshold) {
+        if (isTmpAlarmOn && !tempAlarmFired && tempC >= tmpThresh) {
             tempAlarmFired = true
             triggerAlarm(context)
-            BatteryVoiceAlert.speak(context, "Amaran kecemasan! Suhu bateri terlalu tinggi, mencecah " + tempC.toInt() + " darjah celcius. Sila cabut pengecas segera!")
+            BatteryVoiceAlert.speak(context, "Amaran kecemasan! Suhu bateri terlalu tinggi, mencecah ${tempC.toInt()} darjah celcius. Sila cabut pengecas segera!")
         }
     }
 

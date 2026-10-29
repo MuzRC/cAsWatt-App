@@ -20,82 +20,85 @@ class ChargingChartView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
-    // 1. Grid Garisan Putus-putus
-    private val gridPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.parseColor("#1F2430")
-        strokeWidth = 1.8f
+    // 1. Grid Utama Mendatar (Setiap 5W - Ada Garis Putus & Label)
+    private val majorGridPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color.parseColor("#262C3D")
+        strokeWidth = 1.5f
         style = Paint.Style.STROKE
-        pathEffect = DashPathEffect(floatArrayOf(8f, 8f), 0f)
+        pathEffect = DashPathEffect(floatArrayOf(6f, 6f), 0f)
     }
 
-    // 2. Label Teks Paksi Kuasa (Watt - Kiri)
+    // 2. Grid Mikro Mendatar (Setiap 1W - Garisan Sangat Halus & Kemas)
+    private val minorGridPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color.parseColor("#171A24")
+        strokeWidth = 0.9f
+        style = Paint.Style.STROKE
+    }
+
+    // 3. Grid Menegak Masa (Setiap 1 Minit)
+    private val timeGridPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color.parseColor("#1C202C")
+        strokeWidth = 1.0f
+        style = Paint.Style.STROKE
+        pathEffect = DashPathEffect(floatArrayOf(4f, 6f), 0f)
+    }
+
+    // 4. Label Teks Paksi Kuasa (Watt - Kiri)
     private val wattTextPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.parseColor("#00E676")
-        textSize = 24f
+        textSize = 21f
         typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
         textAlign = Paint.Align.LEFT
     }
 
-    // 3. Label Teks Paksi Suhu (°C - Kanan)
+    // 5. Label Teks Paksi Suhu (°C - Kanan)
     private val tempTextPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.parseColor("#FF9100")
-        textSize = 24f
+        textSize = 21f
         typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
         textAlign = Paint.Align.RIGHT
     }
 
-    // 4. Label Teks Paksi Masa (Bawah)
-    private val timeTextLeft = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+    // 6. Label Teks Minit Masa (Bawah)
+    private val timeTextPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.parseColor("#78909C")
-        textSize = 22f
-        textAlign = Paint.Align.LEFT
-    }
-
-    private val timeTextCenter = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.parseColor("#546E7A")
-        textSize = 22f
+        textSize = 20f
         textAlign = Paint.Align.CENTER
     }
 
-    private val timeTextRight = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.parseColor("#78909C")
-        textSize = 22f
-        textAlign = Paint.Align.RIGHT
-    }
-
-    // 5. Teks Mesej Graf Kosong
+    // 7. Teks Graf Kosong
     private val emptyPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.parseColor("#546E7A")
-        textSize = 30f
+        textSize = 28f
         textAlign = Paint.Align.CENTER
     }
 
-    // 6. Garisan Keluk Watt (Dominan & Kemas)
+    // 8. Keluk Garisan Watt (Dominan)
     private val wattPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.parseColor("#00E676")
-        strokeWidth = 3.8f
+        strokeWidth = 3.6f
         style = Paint.Style.STROKE
         strokeCap = Paint.Cap.ROUND
         strokeJoin = Paint.Join.ROUND
     }
 
-    // 7. Kecerunan Kawasan di Bawah Garisan Watt
+    // 9. Kecerunan Kawasan di Bawah Keluk Watt
     private val wattFillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
     }
 
-    // 8. Garisan Keluk Suhu (Halus & Elegan)
+    // 10. Keluk Garisan Suhu (Halus)
     private val tempPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.parseColor("#FF9100")
-        strokeWidth = 2.4f
+        strokeWidth = 2.2f
         style = Paint.Style.STROKE
         strokeCap = Paint.Cap.ROUND
         strokeJoin = Paint.Join.ROUND
     }
 
-    // 9. Titik Bercahaya (Glow Marker) pada Titik Terkini
+    // 11. Penanda Hujung Titik Semasa
     private val glowHaloPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.parseColor("#4400E676")
+        color = Color.parseColor("#3800E676")
         style = Paint.Style.FILL
     }
 
@@ -109,7 +112,7 @@ class ChargingChartView @JvmOverloads constructor(
         style = Paint.Style.FILL
     }
 
-    // Objek Path dikitar semula untuk mengelakkan alokasi memori berulang
+    // Kitar semula objek Path dalam memori
     private val wattPath = Path()
     private val wattFillPath = Path()
     private val tempPath = Path()
@@ -117,15 +120,14 @@ class ChargingChartView @JvmOverloads constructor(
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         if (w > 0 && h > 0) {
-            val paddingTop = 45f
-            val paddingBottom = 65f
+            val paddingTop = 40f
+            val paddingBottom = 60f
             val plotH = (h.toFloat() - paddingTop - paddingBottom).coerceAtLeast(10f)
 
-            // Pasang kecerunan hijau lut sinar di bawah garisan watt
             wattFillPaint.shader = LinearGradient(
                 0f, paddingTop,
                 0f, paddingTop + plotH,
-                Color.parseColor("#3800E676"),
+                Color.parseColor("#3500E676"),
                 Color.parseColor("#0000E676"),
                 Shader.TileMode.CLAMP
             )
@@ -138,23 +140,18 @@ class ChargingChartView @JvmOverloads constructor(
         val w = width.toFloat()
         val h = height.toFloat()
 
-        val paddingLeft = 80f
-        val paddingRight = 80f
-        val paddingTop = 45f
-        val paddingBottom = 65f
+        val paddingLeft = 75f
+        val paddingRight = 75f
+        val paddingTop = 40f
+        val paddingBottom = 60f
 
         val plotW = w - paddingLeft - paddingRight
         val plotH = h - paddingTop - paddingBottom
+        val bottomY = paddingTop + plotH
 
         if (plotW <= 0f || plotH <= 0f) return
 
-        // Lukis 5 garisan grid mendatar
-        for (i in 0..4) {
-            val y = paddingTop + (plotH / 4f) * i
-            canvas.drawLine(paddingLeft, y, w - paddingRight, y, gridPaint)
-        }
-
-        // Ambil data sejarah pengecasan secara selamat
+        // 1. Ambil salinan sejarah pengecasan
         val data = synchronized(ChargingSessionManager) {
             ChargingSessionManager.history.toList()
         }
@@ -164,37 +161,80 @@ class ChargingChartView @JvmOverloads constructor(
             return
         }
 
-        // Skala automatik Pintar Paksi-Y (gandaan 5W lebih stabil berbanding 10W)
+        // 2. Skala Paksi-Y (Gandaan 5W, minimum 20W)
         var maxObservedWatt = 15f
         for (p in data) {
             if (p.watt > maxObservedWatt) {
                 maxObservedWatt = p.watt
             }
         }
-        val maxWattAxis = (ceil((maxObservedWatt + 3f) / 5f) * 5f).coerceAtLeast(20f)
+        val maxWattAxis = (ceil((maxObservedWatt + 2f) / 5f) * 5f).coerceAtLeast(20f)
+        val totalWattSteps = maxWattAxis.toInt()
 
         val minTemp = 20f
         val maxTemp = 60f
 
-        // Label Paksi Kuasa (Kiri): Puncak, Tengah, dan Sifar
-        canvas.drawText(String.format(Locale.US, "%.0fW", maxWattAxis), 12f, paddingTop + 18f, wattTextPaint)
-        canvas.drawText(String.format(Locale.US, "%.0fW", maxWattAxis / 2f), 12f, paddingTop + (plotH / 2f) + 8f, wattTextPaint)
-        canvas.drawText("0W", 12f, h - paddingBottom, wattTextPaint)
+        // 3. LUKIS GRID TEPI SETIAP 1W & 5W
+        for (wVal in 0..totalWattSteps) {
+            val y = bottomY - (wVal.toFloat() / maxWattAxis) * plotH
 
-        // Label Paksi Suhu (Kanan): 60°C, 40°C, dan 20°C
-        canvas.drawText("60°C", w - 12f, paddingTop + 18f, tempTextPaint)
-        canvas.drawText("40°C", w - 12f, paddingTop + (plotH / 2f) + 8f, tempTextPaint)
-        canvas.drawText("20°C", w - 12f, h - paddingBottom, tempTextPaint)
+            if (wVal % 5 == 0) {
+                // Major Grid (Setiap 5W): Garisan putus-putus & ada nombor label
+                canvas.drawLine(paddingLeft, y, w - paddingRight, y, majorGridPaint)
+                canvas.drawText("${wVal}W", 10f, y + 7f, wattTextPaint)
+            } else {
+                // Minor Grid (Setiap 1W): Garisan kelabu sangat halus tanpa teks
+                canvas.drawLine(paddingLeft, y, w - paddingRight, y, minorGridPaint)
+            }
+        }
 
-        // Reset semua Path untuk lukisan bingkai semasa
+        // Label Suhu Paksi Kanan (60°C, 40°C, 20°C)
+        canvas.drawText("60°C", w - 10f, paddingTop + 10f, tempTextPaint)
+        canvas.drawText("40°C", w - 10f, paddingTop + (plotH / 2f) + 7f, tempTextPaint)
+        canvas.drawText("20°C", w - 10f, bottomY + 2f, tempTextPaint)
+
+        // 4. LUKIS GRID BAWAH SETIAP 1 MINIT (Time-based scaling)
+        val startTime = ChargingSessionManager.sessionStartTime
+        val now = System.currentTimeMillis()
+        val elapsedSec = if (startTime > 0L) ((now - startTime) / 1000L).coerceAtLeast(0L) else 0L
+
+        // Tetingkap masa minimum 5 minit (300s). Kalau lebih 5 minit, luaskan automatik ke minit berikutnya
+        val timeWindowSec = if (elapsedSec <= 300L) {
+            300L
+        } else {
+            (ceil(elapsedSec / 60.0).toLong() * 60L).coerceAtLeast(300L)
+        }
+
+        val totalMinutes = (timeWindowSec / 60L).toInt()
+
+        for (m in 0..totalMinutes) {
+            val x = paddingLeft + (m.toFloat() / totalMinutes.toFloat()) * plotW
+
+            // Garisan grid menegak setiap 1 minit
+            canvas.drawLine(x, paddingTop, x, bottomY, timeGridPaint)
+
+            // Label teks minit di bawah (Kawal selang label jika sesi terlalu panjang agar teks tak bertindih)
+            val shouldDrawLabel = when {
+                totalMinutes <= 10 -> true
+                totalMinutes <= 25 -> m % 2 == 0
+                else -> m % 5 == 0
+            }
+
+            if (shouldDrawLabel) {
+                canvas.drawText("${m}m", x, h - 20f, timeTextPaint)
+            }
+        }
+
+        // 5. PLOT KELUK BEZIER MENGIKUT MASA SEBENAR
         wattPath.reset()
         wattFillPath.reset()
         tempPath.reset()
 
-        val stepX = plotW / (data.size - 1).toFloat()
-        val bottomY = paddingTop + plotH
+        val firstPointTime = if (startTime > 0L) startTime else data.first().timestamp
 
-        var prevX = paddingLeft
+        val firstElapsed = ((data[0].timestamp - firstPointTime) / 1000f).coerceAtLeast(0f)
+        var prevX = paddingLeft + (firstElapsed / timeWindowSec.toFloat()).coerceIn(0f, 1f) * plotW
+
         val firstWattClamped = data[0].watt.coerceIn(0f, maxWattAxis)
         var prevYWatt = bottomY - (firstWattClamped / maxWattAxis) * plotH
 
@@ -206,10 +246,10 @@ class ChargingChartView @JvmOverloads constructor(
         wattFillPath.lineTo(prevX, prevYWatt)
         tempPath.moveTo(prevX, prevYTemp)
 
-        // Algoritma Midpoint Bezier: Tukar sambungan bersegi menjadi lengkung lembut
         for (i in 1 until data.size) {
             val p = data[i]
-            val currX = paddingLeft + i * stepX
+            val pElapsed = ((p.timestamp - firstPointTime) / 1000f).coerceAtLeast(0f)
+            val currX = paddingLeft + (pElapsed / timeWindowSec.toFloat()).coerceIn(0f, 1f) * plotW
 
             val clampedWatt = p.watt.coerceIn(0f, maxWattAxis)
             val currYWatt = bottomY - (clampedWatt / maxWattAxis) * plotH
@@ -230,7 +270,7 @@ class ChargingChartView @JvmOverloads constructor(
             prevYTemp = currYTemp
         }
 
-        // Sambung titik akhir
+        // Sambung ke titik penamat
         wattPath.lineTo(prevX, prevYWatt)
         wattFillPath.lineTo(prevX, prevYWatt)
         wattFillPath.lineTo(prevX, bottomY)
@@ -238,29 +278,13 @@ class ChargingChartView @JvmOverloads constructor(
 
         tempPath.lineTo(prevX, prevYTemp)
 
-        // 1. Lukis kecerunan kawasan hijau di bawah keluk watt
+        // Lukis lapisan: Kecerunan Kawasan -> Keluk Watt -> Keluk Suhu -> Titik Bercahaya
         canvas.drawPath(wattFillPath, wattFillPaint)
-
-        // 2. Lukis garisan keluk watt dan suhu
         canvas.drawPath(wattPath, wattPaint)
         canvas.drawPath(tempPath, tempPaint)
 
-        // 3. Lukis titik bercahaya pada bacaan terkini (Hujung graf)
-        canvas.drawCircle(prevX, prevYWatt, 9f, glowHaloPaint)
-        canvas.drawCircle(prevX, prevYWatt, 4.5f, glowDotPaint)
-        canvas.drawCircle(prevX, prevYTemp, 3.5f, tempDotPaint)
-
-        // 4. Lukis Penanda Garis Masa Paksi-X (Bawah Graf)
-        val startTime = ChargingSessionManager.sessionStartTime
-        val elapsedSec = if (startTime > 0L) ((System.currentTimeMillis() - startTime) / 1000L).coerceAtLeast(0L) else 0L
-        val elapsedMin = elapsedSec / 60L
-        val remainSec = elapsedSec % 60L
-
-        val durationLabel = if (elapsedMin > 0) String.format(Locale.US, "%dm %ds", elapsedMin, remainSec) else String.format(Locale.US, "%ds", remainSec)
-
-        val timeY = h - 22f
-        canvas.drawText("0m", paddingLeft, timeY, timeTextLeft)
-        canvas.drawText("Masa Pengecasan", paddingLeft + (plotW / 2f), timeY, timeTextCenter)
-        canvas.drawText(durationLabel, w - paddingRight, timeY, timeTextRight)
+        canvas.drawCircle(prevX, prevYWatt, 8f, glowHaloPaint)
+        canvas.drawCircle(prevX, prevYWatt, 4f, glowDotPaint)
+        canvas.drawCircle(prevX, prevYTemp, 3f, tempDotPaint)
     }
 }

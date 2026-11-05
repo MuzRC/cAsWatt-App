@@ -1,4 +1,4 @@
-# ⚡ CasWatt Pro v5.0.0 (Master Edition)
+# ⚡ CasWatt Pro v5.0.2
 
 Aplikasi pemantauan kuasa dan bateri Android tahap multimeter — padat, sifar bloatware, tanpa iklan, dan 100% luar talian.
 

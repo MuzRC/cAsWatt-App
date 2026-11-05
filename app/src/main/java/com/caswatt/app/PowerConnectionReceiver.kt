@@ -22,26 +22,49 @@ class PowerConnectionReceiver : BroadcastReceiver() {
 
         when (intent.action) {
             Intent.ACTION_POWER_CONNECTED -> {
-                ChargingSessionManager.onChargingStarted(context, pct)
-                try {
-                    ContextCompat.startForegroundService(context, serviceIntent)
-                } catch (e: Exception) {
-                    // Lindungi daripada ForegroundServiceStartNotAllowedException pada Android 12/14+
-                    Log.e("PowerReceiver", "Gagal memulakan ChargingService: ${e.message}")
+                var serviceReady = ChargingService.isRunning
+
+                // Jika servis belum hidup, cuba mulakan dahulu
+                if (!serviceReady) {
+                    try {
+                        ContextCompat.startForegroundService(context, serviceIntent)
+                        serviceReady = true
+                    } catch (e: Exception) {
+                        serviceReady = false
+                        Log.e("PowerReceiver", "Disekat memulakan ChargingService di latar belakang: ${e.message}")
+                    }
+                }
+
+                // Hanya mulakan sesi cas jika servis sah berjalan untuk elak rekod kosong 0 W / 0 mAh
+                if (serviceReady) {
+                    ChargingSessionManager.onChargingStarted(context, pct)
                 }
             }
 
             Intent.ACTION_POWER_DISCONNECTED -> {
+                // Catat penamatan sesi pengecasan dan simpan data terkumpul
                 ChargingSessionManager.onChargingStopped(context, pct)
-                try {
-                    context.stopService(serviceIntent)
-                } catch (e: Exception) {
-                    Log.e("PowerReceiver", "Gagal menghentikan ChargingService: ${e.message}")
+
+                // JANGAN panggil context.stopService() di sini.
+                // ChargingService direka khas untuk kekal hidup memantau tempoh guna bateri (5s)
+                // dan memastikan servis sedia ada di memori supaya tidak disekat Android bila dicucuk semula.
+                if (!ChargingService.isRunning) {
+                    try {
+                        ContextCompat.startForegroundService(context, serviceIntent)
+                    } catch (e: Exception) {
+                        Log.w("PowerReceiver", "Servis pemantau santai gagal dimulakan: ${e.message}")
+                    }
                 }
             }
 
             Intent.ACTION_BOOT_COMPLETED -> {
-                // Semak jika kabel pengecas memang sedia bercucuk sebaik telefon selesai boot
+                // Mulakan servis pemantauan serta-merta sebaik sahaja telefon selesai boot
+                try {
+                    ContextCompat.startForegroundService(context, serviceIntent)
+                } catch (e: Exception) {
+                    Log.e("PowerReceiver", "Gagal memulakan ChargingService semasa boot: ${e.message}")
+                }
+
                 val batteryStatus = try {
                     context.applicationContext.registerReceiver(
                         null,
@@ -57,16 +80,11 @@ class PowerConnectionReceiver : BroadcastReceiver() {
 
                 if (isPlugged) {
                     ChargingSessionManager.onChargingStarted(context, pct)
-                    try {
-                        ContextCompat.startForegroundService(context, serviceIntent)
-                    } catch (e: Exception) {
-                        Log.e("PowerReceiver", "Gagal memulakan ChargingService semasa boot: ${e.message}")
-                    }
                 }
             }
         }
 
-        // 3. Hantar arahan kemas kini ke Widget secara eksplisit supaya tidak disekat sistem
+        // 3. Hantar arahan kemas kini ke Widget secara eksplisit
         try {
             val updateIntent = Intent(ChargingWidget.ACTION_UPDATE_WIDGET).apply {
                 setPackage(context.packageName)
@@ -90,7 +108,7 @@ class PowerConnectionReceiver : BroadcastReceiver() {
             return capacity
         }
 
-        // Pelan sandaran menggunakan applicationContext (sah di sisi Android)
+        // Pelan sandaran menggunakan applicationContext
         return try {
             val stickyIntent = context.applicationContext.registerReceiver(
                 null,
@@ -100,7 +118,7 @@ class PowerConnectionReceiver : BroadcastReceiver() {
             val scale = stickyIntent?.getIntExtra(BatteryManager.EXTRA_SCALE, -1) ?: -1
             if (level >= 0 && scale > 0) (level * 100) / scale else 50
         } catch (_: Exception) {
-            50 // Nilai sandaran selamat sekiranya sistem tiada respon
+            50
         }
     }
 }

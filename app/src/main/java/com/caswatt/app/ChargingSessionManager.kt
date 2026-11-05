@@ -21,11 +21,18 @@ object ChargingSessionManager {
     private const val KEY_HEALTH_STATUS = "last_health_status"
     private const val KEY_ACTIVE_SESSION_START = "active_session_start_time"
     private const val KEY_ACTIVE_SESSION_LEVEL = "active_session_start_level"
+    
+    // Kunci sandaran untuk pulihkan sesi jika proses dibunuh sistem semasa mengecas
+    private const val KEY_ACTIVE_SESSION_MAH = "active_session_mah"
+    private const val KEY_ACTIVE_SESSION_WH = "active_session_wh"
+    private const val KEY_ACTIVE_SESSION_PEAK_WATT = "active_session_peak_watt"
+
     private const val TARIFF_PER_KWH = 0.38
     
     // Muatan penimbal dinaikkan ke 400 titik dengan kawalan selang masa
     private const val MAX_HISTORY_POINTS = 400
-    private const val HISTORY_SAMPLE_INTERVAL_MS = 2000L // 1 sampel graf setiap 2 saat (~13.3 minit rekod aktif)
+    private const val HISTORY_SAMPLE_INTERVAL_MS = 2000L // 1 sampel graf setiap 2 saat
+    private const val DISK_SAVE_INTERVAL_MS = 15000L // Simpan ke disk setiap 15 saat
 
     private var isInitialized = false
 
@@ -36,6 +43,7 @@ object ChargingSessionManager {
     var costMyr: Double = 0.0
     private var lastTimestamp: Long = 0L
     private var lastHistoryTimestamp: Long = 0L
+    private var lastDiskSaveTimestamp: Long = 0L
 
     // Pembolehubah Penapis Kehalusan Data (EMA & Anti-Spike)
     private var lastValidWatt: Double = 0.0
@@ -113,11 +121,15 @@ object ChargingSessionManager {
             lastUnplugLevel = prefs.getInt(KEY_UNPLUG_LEVEL, 100)
         }
 
-        // Pulihkan sesi aktif jika aplikasi dimulakan semula semasa masih mengecas
+        // Pulihkan sesi aktif dan nilai tenaganya jika aplikasi mati semasa telefon masih mengecas
         val savedSessionStart = prefs.getLong(KEY_ACTIVE_SESSION_START, 0L)
         if (savedSessionStart > 0L) {
             sessionStartTime = savedSessionStart
             sessionStartLevel = prefs.getInt(KEY_ACTIVE_SESSION_LEVEL, 0)
+            totalMah = prefs.getFloat(KEY_ACTIVE_SESSION_MAH, 0f).toDouble()
+            energyWh = prefs.getFloat(KEY_ACTIVE_SESSION_WH, 0f).toDouble()
+            peakWatt = prefs.getFloat(KEY_ACTIVE_SESSION_PEAK_WATT, 0f).toDouble()
+            costMyr = (energyWh / 1000.0) * TARIFF_PER_KWH
         }
 
         cumulativePctCharged = prefs.getFloat(KEY_CUMULATIVE_PCT, 0f).toDouble()
@@ -145,8 +157,6 @@ object ChargingSessionManager {
         ensureInit(context)
         if (wasCharging == null) {
             wasCharging = isCharging
-            // PEMBAIKAN UTAMA: Jika aplikasi baru dibuka/dikemas kini semasa telefon sedia dicas,
-            // mulakan sesi pengecasan serta-merta dan jangan return begitu sahaja!
             if (isCharging) {
                 if (sessionStartTime <= 0L) {
                     onChargingStarted(context, levelPct)
@@ -174,6 +184,7 @@ object ChargingSessionManager {
         lowBatteryAlertFired = false
         lastTimestamp = now
         lastHistoryTimestamp = 0L
+        lastDiskSaveTimestamp = now
         sessionStartTime = now
         sessionStartLevel = currentLevel
         sessionStartTemp = 0.0
@@ -183,13 +194,15 @@ object ChargingSessionManager {
         cableQuality = "Mengukur kualiti kabel..."
         isThermalThrottling = false
 
-        // Simpan penanda sesi aktif ke storan kekal
+        // Simpan sesi aktif ke storan untuk perlindungan sekiranya proses dimatikan sistem
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
             .putLong(KEY_ACTIVE_SESSION_START, sessionStartTime)
             .putInt(KEY_ACTIVE_SESSION_LEVEL, sessionStartLevel)
+            .putFloat(KEY_ACTIVE_SESSION_MAH, 0f)
+            .putFloat(KEY_ACTIVE_SESSION_WH, 0f)
+            .putFloat(KEY_ACTIVE_SESSION_PEAK_WATT, 0f)
             .apply()
 
-        // Reset penapis kelicinan graf
         lastValidWatt = 0.0
         smoothedWatt = 0.0
         smoothedTemp = 0.0
@@ -217,22 +230,28 @@ object ChargingSessionManager {
         wasCharging = false
         isTrickleCharging = false
 
-        // Padam sesi aktif daripada storan kekal
+        // Padam rekod sesi aktif sebaik kabel dicabut
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
             .putLong(KEY_UNPLUG_TIME, lastUnplugTimestamp)
             .putInt(KEY_UNPLUG_LEVEL, lastUnplugLevel)
             .putFloat(KEY_CUMULATIVE_PCT, cumulativePctCharged.toFloat())
             .remove(KEY_ACTIVE_SESSION_START)
             .remove(KEY_ACTIVE_SESSION_LEVEL)
+            .remove(KEY_ACTIVE_SESSION_MAH)
+            .remove(KEY_ACTIVE_SESSION_WH)
+            .remove(KEY_ACTIVE_SESSION_PEAK_WATT)
             .apply()
 
+        // Pastikan rekod hari ini disimpan muktamad
         val today = getTodayDateString()
-        val todayRecord = dailyRecords.find { it.date == today }
-        if (todayRecord != null) {
-            todayRecord.totalMah += totalMah
+        var todayRecord = dailyRecords.find { it.date == today }
+        if (todayRecord == null) {
+            todayRecord = DailyRecord(today, 1, totalMah, peakWatt)
+            dailyRecords.add(0, todayRecord)
+        } else {
             if (peakWatt > todayRecord.peakWatt) todayRecord.peakWatt = peakWatt
-            saveDailyRecords(context)
         }
+        saveDailyRecords(context)
 
         val durationSec = if (sessionStartTime > 0L) (now - sessionStartTime) / 1000 else 0
         val levelGain = (currentLevel - sessionStartLevel).coerceAtLeast(0)
@@ -261,7 +280,6 @@ object ChargingSessionManager {
             saveSessionRecords(context)
         }
 
-        // Reset penanda waktu sesi sebaik sahaja kabel dicabut
         sessionStartTime = 0L
         sessionStartLevel = 0
 
@@ -292,7 +310,6 @@ object ChargingSessionManager {
         }
 
         if (isCharging) {
-            // FAIL-SAFE: Jika atas apa jua sebab sessionStartTime masih 0L semasa mengecas, paksa mulakan sesi
             if (sessionStartTime <= 0L) {
                 onChargingStarted(context, levelPct)
             }
@@ -300,7 +317,7 @@ object ChargingSessionManager {
             if (sessionStartTemp == 0.0 && tempC > 0.0) sessionStartTemp = tempC
             sessionLastTemp = tempC
 
-            // 1. Tapis Glitch / False-Drop (elak jarum terjunam ke 0W bila polling Android terlepas)
+            // 1. Tapis Glitch / False-Drop
             val cleanWatt = if (watt < 0.6 && lastValidWatt > 2.0) {
                 lastValidWatt
             } else {
@@ -310,23 +327,50 @@ object ChargingSessionManager {
 
             if (cleanWatt > peakWatt) peakWatt = cleanWatt
 
-            // 2. Kira Integrasi Tenaga (Coulomb counting & Wh)
+            // 2. Kira Integrasi Tenaga & Kemas Kini Terus Rekod Harian
             if (lastTimestamp > 0L) {
                 val dtSec = (now - lastTimestamp) / 1000.0
                 if (dtSec >= 0.5 && currentMa > 0) {
                     val safeDt = dtSec.coerceAtMost(60.0)
-                    totalMah += currentMa * (safeDt / 3600.0)
-                    energyWh += (cleanWatt * safeDt) / 3600.0
+                    val deltaMah = currentMa * (safeDt / 3600.0)
+                    val deltaWh = (cleanWatt * safeDt) / 3600.0
+
+                    totalMah += deltaMah
+                    energyWh += deltaWh
                     costMyr = (energyWh / 1000.0) * TARIFF_PER_KWH
+
+                    // Tambah terus ke rekod harian secara masa nyata
+                    val today = getTodayDateString()
+                    var todayRecord = dailyRecords.find { it.date == today }
+                    if (todayRecord == null) {
+                        todayRecord = DailyRecord(today, 1, deltaMah, cleanWatt)
+                        dailyRecords.add(0, todayRecord)
+                        if (dailyRecords.size > 3650) dailyRecords.removeAt(dailyRecords.size - 1)
+                    } else {
+                        todayRecord.totalMah += deltaMah
+                        if (cleanWatt > todayRecord.peakWatt) todayRecord.peakWatt = cleanWatt
+                    }
                 }
             }
 
+            val isLevelChanged = (previousChargeLevel in 0..100 && levelPct != previousChargeLevel)
             if (previousChargeLevel in 0..100 && levelPct > previousChargeLevel) {
                 cumulativePctCharged += (levelPct - previousChargeLevel)
                 context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
                     .putFloat(KEY_CUMULATIVE_PCT, cumulativePctCharged.toFloat()).apply()
             }
             previousChargeLevel = levelPct
+
+            // Simpan ke disk secara berkala atau bila paras peratus bateri bertukar
+            if (now - lastDiskSaveTimestamp >= DISK_SAVE_INTERVAL_MS || isLevelChanged) {
+                lastDiskSaveTimestamp = now
+                saveDailyRecords(context)
+                context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
+                    .putFloat(KEY_ACTIVE_SESSION_MAH, totalMah.toFloat())
+                    .putFloat(KEY_ACTIVE_SESSION_WH, energyWh.toFloat())
+                    .putFloat(KEY_ACTIVE_SESSION_PEAK_WATT, peakWatt.toFloat())
+                    .apply()
+            }
 
             // 3. Diagnostik Pintar
             cableQuality = ChargingDiagnosticsHelper.evaluateCableQuality(cleanWatt, levelPct)
@@ -347,34 +391,18 @@ object ChargingSessionManager {
                 isTrickleCharging = false
             }
 
-            // 5. Penapisan Kelicinan Titik Graf (Exponential Moving Average / EMA)
-            smoothedWatt = if (smoothedWatt <= 0.0) {
-                cleanWatt
-            } else {
-                (0.35 * cleanWatt) + (0.65 * smoothedWatt)
-            }
+            // 5. Penapisan Graf (EMA)
+            smoothedWatt = if (smoothedWatt <= 0.0) cleanWatt else (0.35 * cleanWatt) + (0.65 * smoothedWatt)
+            smoothedTemp = if (smoothedTemp <= 0.0) tempC else (0.20 * tempC) + (0.80 * smoothedTemp)
 
-            smoothedTemp = if (smoothedTemp <= 0.0) {
-                tempC
-            } else {
-                (0.20 * tempC) + (0.80 * smoothedTemp)
-            }
-
-            // Rekod ke history graf dengan selang masa minimum (2 saat) agar data tidak padat berhimpit
             if (now - lastHistoryTimestamp >= HISTORY_SAMPLE_INTERVAL_MS || history.isEmpty()) {
                 history.add(ChartPoint(smoothedWatt.toFloat(), smoothedTemp.toFloat(), now))
                 if (history.size > MAX_HISTORY_POINTS) history.removeAt(0)
                 lastHistoryTimestamp = now
             }
 
-            val today = getTodayDateString()
-            dailyRecords.find { it.date == today }?.let {
-                if (peakWatt > it.peakWatt) it.peakWatt = peakWatt
-            }
-
             checkAlarms(context, levelPct, tempC)
         } else {
-            // Reset semula flag bateri lemah jika peratus naik semula atas 20%
             if (levelPct > 20) {
                 lowBatteryAlertFired = false
             } else if (levelPct <= 20 && !lowBatteryAlertFired) {
@@ -390,7 +418,6 @@ object ChargingSessionManager {
     }
 
     private fun checkAlarms(context: Context, levelPct: Int, tempC: Double) {
-        // Ambil tetapan terus dari AlarmPreferencesHelper untuk penyelarasan penuh dengan tab Penggera baharu
         val isBatAlarmOn = try { AlarmPreferencesHelper.isHighLevelEnabled(context) } catch (_: Exception) { batteryAlarmEnabled }
         val batThresh = try { AlarmPreferencesHelper.getHighLevelThreshold(context) } catch (_: Exception) { batteryThreshold }
         

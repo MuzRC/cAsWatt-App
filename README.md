@@ -1,29 +1,20 @@
-# ⚡ CasWatt Pro v5.0.0 (Master Edition) - Multimeter & Diagnostik Bateri Pintar
+# ⚡ CasWatt Pro v5.0.0 (Master Edition)
 
-Aplikasi pemantauan bateri dan kuasa pengecasan Android generasi baharu dengan ketepatan tahap multimeter, sifar bloatware, tanpa iklan, dan 100% offline. 
+Aplikasi pemantauan kuasa dan bateri Android tahap multimeter — padat, sifar bloatware, tanpa iklan, dan 100% luar talian.
 
-## 🚀 Ciri-Ciri Baharu dalam v5.0.0 (Master Edition):
+### 🚀 Ciri Utama:
 
-1. **Diagnostik Kualiti Kabel & Pengecas (*Cable Resistance & Quality Tester*):**
-   - Menilai kualiti kabel USB Type-C secara langsung berdasarkan daya hantar arus dan voltan (`Cemerlang`, `Baik`, `Sederhana`, atau `Kabel Lemah / Rintangan Tinggi`).
-2. **Pengesan Sekatan Suhu (*Thermal Throttling Alert*):**
-   - Mengesan secara automatik jika cip kuasa (*PMIC*) telefon menurunkan kuasa cas akibat suhu melebihi 40°C bagi melindungi sel bateri daripada degradasi haba.
-3. **Smart ETA (Anggaran Masa Siap Cas Pintar):**
-   - Mengira baki minit pengecasan secara dinamik mengikut keluk arus semasa:
-     - ⏱️ Baki masa ke **80%** (Zon Selamat Litium).
-     - ⏱️ Baki masa ke **100%** (Cas Penuh).
-4. **Kalkulator Tenaga Sebenar (Wh) & Kos Elektrik (Tarif Sabah SESB):**
-   - Menukar arus ($mAh$) dan voltan ($V$) kepada unit tenaga sebenar **Watt-jam ($Wh$)**.
-   - Mengira anggaran kos elektrik setiap sesi pengecasan berdasarkan tarif asas elektrik SESB Sabah (RM 0.38/kWh).
-5. **Log Terperinci Mengikut Sesi Cas (*Per-Session History*):**
-   - Merekodkan setiap sesi sambungan kabel secara individu: Masa Mula, Masa Tamat, Durasi Penggunaan, Paras % Mula, Paras % Tamat, Watt Puncak, Tenaga Diserap, Kos Elektrik, dan Penarafan Kabel.
-6. **Eksport CSV Lengkap (Excel / Sheets):**
-   - Satu butang untuk mengeksport kedua-dua **Ringkasan Harian (10 Tahun)** dan **Log Terperinci Sesi** ke dalam fail `.csv` melalui perkongsian selamat `FileProvider`.
-7. **Penggera Penepuan Penuh (*Trickle Charge Saturation*) & Penggera Bateri Rendah (20%):**
-   - Penggera khas apabila bateri 100% mencapai fasa tepu sepenuhnya (arus masuk < 40mA).
-   - Penggera peringatan bateri rendah (< 20%) semasa nyahcas untuk mengelakkan *deep discharge*.
+* **Diagnostik Kabel Pintar:** Nilai kualiti dan rintangan kabel USB-C secara langsung (*Cemerlang* hingga *Rintangan Tinggi*).
+* **Pengesan Sekatan Haba (*Thermal Throttling*):** Pantau penurunan watt automatik oleh peranti apabila suhu mencecah 40°C ke atas.
+* **Smart ETA:** Anggaran dinamik baki masa pengecasan ke **80%** (zon selamat bateri) dan **100%** (penuh).
+* **Kiraan Tenaga Wh & Kos (SESB Sabah):** Kira unit tenaga sebenar (Wh) berserta anggaran bil elektrik mengikut tarif asas SESB (RM 0.38/kWh).
+* **Log Sesi Terperinci:** Rekod automatik setiap kali kabel dicucuk — mencatat masa, durasi, lonjakan watt puncak, jumlah tenaga masuk, dan suhu.
+* **Eksport CSV Pantas:** Muat turun data log sesi dan sejarah trend harian terus ke fail `.csv` untuk dibuka di Google Sheets atau Excel.
+* **Sistem Penggera Bateri:** Notifikasi suara dan amaran bagi zon selamat bateri, bateri lemah bawah 20%, suhu panas lampau, dan pengesanan bateri tepu sepenuhnya (*trickle finish*).
 
-## 🏆 Kredit Projek:
-- 💡 **Pencetus Idea & Konsep:** Muz
-- 🤖 **Pelaksana & Jurutera Kod:** Gemini 3.8
-- 📍 **Asal Usul Inovasi:** Beaufort, Sabah
+---
+
+### 🏆 Kredit Pembangunan:
+* **Konsep & Arkitek:** Muz
+* **Pembangunan Kod:** Gemini
+* **Lokasi:** Beaufort, Sabah

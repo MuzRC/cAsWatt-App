@@ -15,6 +15,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.os.PowerManager
 import android.service.quicksettings.TileService
 import android.util.Log
 import androidx.core.app.NotificationCompat
@@ -27,6 +28,9 @@ class ChargingService : Service() {
     private val CHANNEL_ID = "CasWattMonitorChannel"
     private val NOTIF_ID = 2026
 
+    // Pengurusan WakeLock untuk elak CPU tertidur bila skrin padam
+    private var wakeLock: PowerManager.WakeLock? = null
+
     // Pengurusan kitaran masa kemas kini
     private var lastTileUpdateTimestamp = 0L
     private var lastWidgetUpdateTimestamp = 0L
@@ -36,7 +40,14 @@ class ChargingService : Service() {
         override fun run() {
             val isCharging = updateMetricsAndWidget()
 
-            // Jika sedang dicas, pantau laju (1.5s). Jika guna bateri biasa, lambatkan ke 5s untuk jimat kuasa.
+            // Jika sedang dicas, kekalkan WakeLock dan semak pantas (1.5s). 
+            // Jika kabel dicabut, lepaskan WakeLock dan lambatkan semakan ke 5s.
+            if (isCharging) {
+                acquireWakeLock()
+            } else {
+                releaseWakeLock()
+            }
+
             val nextDelay = if (isCharging) 1500L else 5000L
             handler.postDelayed(this, nextDelay)
         }
@@ -69,6 +80,32 @@ class ChargingService : Service() {
         return START_STICKY
     }
 
+    private fun acquireWakeLock() {
+        if (wakeLock?.isHeld == true) return
+        try {
+            val powerManager = getSystemService(Context.POWER_SERVICE) as? PowerManager
+            wakeLock = powerManager?.newWakeLock(
+                PowerManager.PARTIAL_WAKE_LOCK,
+                "CasWatt:ChargingServiceWakeLock"
+            )?.apply {
+                setReferenceCounted(false)
+                acquire(30 * 60 * 1000L) // Had selamat 30 minit setiap kitaran re-acquire
+            }
+        } catch (e: Exception) {
+            Log.w("ChargingService", "Gagal acquire WakeLock: ${e.message}")
+        }
+    }
+
+    private fun releaseWakeLock() {
+        try {
+            if (wakeLock?.isHeld == true) {
+                wakeLock?.release()
+            }
+        } catch (e: Exception) {
+            Log.w("ChargingService", "Gagal release WakeLock: ${e.message}")
+        }
+    }
+
     private fun updateMetricsAndWidget(): Boolean {
         val batteryManager = getSystemService(Context.BATTERY_SERVICE) as? BatteryManager
         
@@ -99,13 +136,16 @@ class ChargingService : Service() {
 
             healthCode = batteryStatus.getIntExtra(BatteryManager.EXTRA_HEALTH, BatteryManager.BATTERY_HEALTH_UNKNOWN)
 
-            val currentNowMicro = batteryManager?.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW) ?: 0
+            val rawCurrent = batteryManager?.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW) ?: 0
+            
+            // Tangani ralat sensor Int.MIN_VALUE sebelum panggil abs()
+            val safeCurrent = if (rawCurrent == Int.MIN_VALUE) 0 else abs(rawCurrent)
             
             // Pembaikan had pemisah (threshold): Gunakan 50,000 supaya arus pengecasan pantas 10A-12A tidak disalah anggap sebagai microampere
-            currentMa = if (abs(currentNowMicro) > 50000) {
-                abs(currentNowMicro) / 1000
+            currentMa = if (safeCurrent > 50000) {
+                safeCurrent / 1000
             } else {
-                abs(currentNowMicro)
+                safeCurrent
             }
             
             watts = (voltageMv.toDouble() * currentMa) / 1000000.0
@@ -164,7 +204,6 @@ class ChargingService : Service() {
         val notification = createNotification(initialText)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             try {
-                // Untuk Android 14+ (API 34), tentukan jenis foreground service yang bersesuaian jika didaftarkan dalam Manifest
                 startForeground(NOTIF_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
             } catch (_: Exception) {
                 startForeground(NOTIF_ID, notification)
@@ -204,6 +243,7 @@ class ChargingService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         isRunning = false
+        releaseWakeLock()
         handler.removeCallbacks(updateRunnable)
     }
 
